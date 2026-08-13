@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alight Motion Premium Generator</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0b0e1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: #141824;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            border: 1px solid #2a2f45;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        .subtitle {
+            text-align: center;
+            color: #8a8fa8;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #c8cce0;
+        }
+        input[type="email"] {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #2a2f45;
+            background: #1e2337;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+        input[type="email"]:focus {
+            border-color: #6c63ff;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #6c63ff, #3b33b3);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(108, 99, 255, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #log {
+            margin-top: 25px;
+            background: #0b0e1a;
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 350px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            border: 1px solid #1e2337;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        #log .info { color: #6c9bff; }
+        #log .success { color: #4ade80; }
+        #log .error { color: #f87171; }
+        #log .done { color: #fbbf24; font-weight: bold; }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #4a4f6a;
+        }
+        .footer a {
+            color: #6c63ff;
+            text-decoration: none;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0e1a; }
+        ::-webkit-scrollbar-thumb { background: #2a2f45; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>✨ Alight Motion Premium</h1>
+    <p class="subtitle">Generator Akun Premium — by Zx</p>
+
+    <div class="form-group">
+        <label for="email">Email (opsional)</label>
+        <input type="email" id="email" placeholder="kosongkan untuk auto-generate" />
+    </div>
+
+    <button class="btn" id="generateBtn">🚀 Generate Akun Premium</button>
+
+    <div id="log">📋 Log akan muncul di sini...</div>
+    <div class="footer">Dibuat untuk keperluan edukasi | <a href="#" onclick="location.reload()">↻ Reset</a></div>
+</div>
+
+<script>
+    const btn = document.getElementById('generateBtn');
+    const log = document.getElementById('log');
+    const emailInput = document.getElementById('email');
+
+    function appendLog(message, type = 'info') {
+        const line = document.createElement('div');
+        line.className = type;
+        line.textContent = message;
+        log.appendChild(line);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        btn.textContent = '⏳ Memproses...';
+        log.innerHTML = '';
+
+        const email = emailInput.value.trim() || undefined;
+
+        try {
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || '';
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const payload = line.slice(6).trim();
+                        if (payload === 'DONE') {
+                            appendLog('✅ Selesai! Cek hasil di atas.', 'done');
+                            continue;
+                        }
+                        if (payload.startsWith('ERROR:')) {
+                            appendLog('❌ ' + payload.replace('ERROR: ', ''), 'error');
+                            continue;
+                        }
+                        // Coba parse JSON
+                        try {
+                            const json = JSON.parse(payload);
+                            if (json.success) {
+                                appendLog(`📧 Email: ${json.email}`, 'success');
+                                appendLog(`🔑 Password: ${json.password}`, 'success');
+                                appendLog(`🆔 ID Token: ${json.idToken.substring(0, 20)}...`, 'success');
+                                appendLog(`🔗 Deep Link: ${json.deepLink}`, 'success');
+                            } else {
+                                appendLog(payload, 'info');
+                            }
+                        } catch {
+                            appendLog(payload, 'info');
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            appendLog('❌ Error: ' + err.message, 'error');
+        }
+
+        btn.disabled = false;
+        btn.textContent = '🚀 Generate Akun Premium';
+    });
+</script>
+</body>
+</html>
