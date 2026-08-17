@@ -1,14 +1,14 @@
 {
-  "name": "alight-motion-generator",
+  "name": "alight-premium-generator-web",
   "version": "1.0.0",
-  "main": "api/index.js",
-  "scripts": {
-    "start": "node api/index.js"
-  },
+  "description": "Web API untuk generate akun Alight Motion Premium",
+  "main": "api/generate.js",
   "dependencies": {
-    "express": "^4.18.2"
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "randomstring": "^1.3.0"
   },
-  "devDependencies": {
-    "@vercel/node": "^2.0.0"
+  "engines": {
+    "node": ">=18.x"
   }
 }
