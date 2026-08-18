@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alight Motion Premium · Generator</title>
+    <!-- Font & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .card {
+            max-width: 520px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 2rem;
+            padding: 2.5rem 2rem 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(145deg, #2563eb, #7c3aed);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.4rem;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(145deg, #0f172a, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subhead {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            padding-left: 0.25rem;
+            border-left: 3px solid #e2e8f0;
+            padding-left: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            color: #0f172a;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+            background: #ffffff;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 0.9rem;
+            background: #0f172a;
+            color: #fff;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+
+        .btn-generate:hover {
+            background: #1e293b;
+            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
+        }
+
+        .btn-generate:active {
+            transform: scale(0.98);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-generate i {
+            font-size: 1rem;
+        }
+
+        /* Result card */
+        .result-card {
+            margin-top: 2rem;
+            border-radius: 1.25rem;
+            background: #f1f5f9;
+            padding: 1.5rem;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: background 0.3s, border-color 0.3s;
+            border: 1.5px dashed #cbd5e1;
+        }
+
+        .result-card.has-result {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-style: solid;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .result-card .empty-state {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .result-card .empty-state i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+
+        .result-item {
+            width: 100%;
+        }
+
+        .result-item .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .result-item .value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #0f172a;
+            word-break: break-all;
+            margin-top: 0.2rem;
+            padding: 0.5rem 0.75rem;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border: 1px solid #eef2f6;
+        }
+
+        .result-item .value.email {
+            font-family: 'Inter', monospace;
+        }
+
+        .result-item .value.link {
+            font-size: 0.8rem;
+            color: #2563eb;
+            word-break: break-all;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .status-badge.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .footer {
+            margin-top: 1.5rem;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            text-align: center;
+            letter-spacing: 0.02em;
+        }
+
+        .footer a {
+            color: #64748b;
+            text-decoration: none;
+            border-bottom: 1px dotted #cbd5e1;
+        }
+
+        .footer a:hover {
+            color: #0f172a;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 1.75rem 1.25rem;
+            }
+            .logo h1 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="logo">
+        <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+        <h1>Alight Motion · Pro</h1>
+    </div>
+    <div class="subhead">Akses premium untuk keperluan pembelajaran</div>
+
+    <form id="formGenerator">
+        <div class="form-group">
+            <label for="emailInput"><i class="far fa-envelope" style="margin-right:6px;color:#64748b;"></i>Alamat Email</label>
+            <input
+            type="email"
+            id="emailInput"
+            placeholder="misal: user@tempmail.com"
+            value="29o1fsuh6u@ruutukf.com"
+            required
+            />
+        </div>
+
+        <button type="submit" class="btn-generate" id="btnGenerate">
+            <i class="fas fa-key"></i> <span id="btnText">Generate Magic Link</span>
+        </button>
+    </form>
+
+    <!-- Result area -->
+    <div class="result-card" id="resultCard">
+        <div class="empty-state" id="emptyState">
+            <i class="fas fa-inbox"></i>
+            <span>Hasil akan muncul di sini</span>
+        </div>
+        <div class="result-item" id="resultContent" style="display:none;">
+            <div class="label">Status</div>
+            <div id="statusBadge" class="status-badge pending">⏳ Memproses</div>
+
+            <div style="margin-top:1rem;">
+                <div class="label">Email</div>
+                <div class="value email" id="resultEmail">-</div>
+            </div>
+
+            <div style="margin-top:0.75rem;">
+                <div class="label">Link Verifikasi</div>
+                <div class="value link" id="resultLink">-</div>
+            </div>
+
+            <div style="margin-top:0.75rem;">
+                <div class="label">Pesan</div>
+                <div class="value" id="resultMessage" style="font-weight:400;color:#334155;">-</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <i class="fas fa-shield-alt" style="margin-right:4px;"></i>
+        Untuk keperluan pembelajaran · API tidak terekspos
+    </div>
+</div>
+
+<script>
+    (function() {
+        const form = document.getElementById('formGenerator');
+        const emailInput = document.getElementById('emailInput');
+        const btnGenerate = document.getElementById('btnGenerate');
+        const btnText = document.getElementById('btnText');
+        const resultCard = document.getElementById('resultCard');
+        const emptyState = document.getElementById('emptyState');
+        const resultContent = document.getElementById('resultContent');
+        const statusBadge = document.getElementById('statusBadge');
+        const resultEmail = document.getElementById('resultEmail');
+        const resultLink = document.getElementById('resultLink');
+        const resultMessage = document.getElementById('resultMessage');
+
+        // Helper: update UI hasil
+        function showResult(status, email, link, message, isSuccess) {
+            emptyState.style.display = 'none';
+            resultContent.style.display = 'block';
+            resultCard.classList.add('has-result');
+
+            // Status badge
+            statusBadge.textContent = status;
+            statusBadge.className = 'status-badge';
+            if (isSuccess === true) {
+                statusBadge.classList.add('success');
+            } else if (isSuccess === false) {
+                statusBadge.classList.add('error');
+            } else {
+                statusBadge.classList.add('pending');
+            }
+
+            resultEmail.textContent = email || '-';
+            resultLink.textContent = link || '-';
+            resultMessage.textContent = message || '-';
+        }
+
+        // Reset ke empty state
+        function resetResult() {
+            emptyState.style.display = 'block';
+            resultContent.style.display = 'none';
+            resultCard.classList.remove('has-result');
+        }
+
+        // Handle form submit
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+            if (!email) {
+                showResult('Gagal', null, null, 'Masukkan alamat email terlebih dahulu.', false);
+                return;
+            }
+
+            // Disable button
+            btnGenerate.disabled = true;
+            btnText.textContent = 'Memproses...';
+            resetResult();
+            showResult('⏳ Mengirim...', email, null, 'Menunggu respons dari server...', null);
+
+            try {
+                // Panggil backend proxy kita (api/index.js)
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Tangani error dari backend
+                    const errorMsg = data.error || 'Terjadi kesalahan pada server.';
+                    showResult('Gagal', email, null, errorMsg, false);
+                    return;
+                }
+
+                // Sukses
+                const link = data.verificationLink || null;
+                const message = data.message || 'Magic link berhasil dikirim & diverifikasi.';
+                showResult('✅ Berhasil', email, link, message, true);
+
+            } catch (err) {
+                console.error('Fetch error:', err);
+                showResult('Gagal', email, null, 'Gagal terhubung ke server. Coba lagi nanti.', false);
+            } finally {
+                btnGenerate.disabled = false;
+                btnText.textContent = 'Generate Magic Link';
+            }
+        });
+
+        // Inisialisasi
+        resetResult();
+    })();
+</script>
+</body>
+</html>
