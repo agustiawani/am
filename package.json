@@ -1,13 +1,8 @@
 {
-  "name": "alight-premium-generator-web",
+  "name": "am",
   "version": "1.0.0",
-  "description": "Web API untuk generate akun Alight Motion Premium",
-  "main": "api/generate.js",
-  "dependencies": {
-    "axios": "^1.6.0",
-    "cheerio": "^1.0.0-rc.12",
-    "randomstring": "^1.3.0"
-  },
+  "description": "AM",
+  "type": "module",
   "engines": {
     "node": ">=18.x"
   }
