@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alight Motion · Generator</title>
+    <title>Alight Motion · Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
@@ -121,7 +121,7 @@
         <div class="logo-icon"><i class="fas fa-bolt"></i></div>
         <h1>Alight Motion · Pro</h1>
     </div>
-    <div class="subhead">Akses premium untuk pembelajaran & testing</div>
+    <div class="subhead">Bypass akses premium gratis</div>
 
     <!-- STEP 1 -->
     <div id="stepSend">
@@ -152,13 +152,13 @@
     <div class="result-box" id="resultBox">
         <div id="resultContent">
             <span class="status-badge badge-info" id="badgeStatus">⏳ Menunggu</span>
-            <div class="msg" id="mainMessage">Masukkan email dan kirim magic link.</div>
-            <div class="sub-msg" id="subMessage">Proses aman melalui server proxy.</div>
+            <div class="msg" id="mainMessage">Masukkan email.</div>
+            <div class="sub-msg" id="subMessage">Untuk kirim magic link.</div>
         </div>
     </div>
 
     <div class="footer">
-        <i class="fas fa-shield-alt"></i> Untuk pembelajaran · Backend Proxy Serverless
+        <i class="fas fa-shield-alt"></i> Gratis jangan diperjualbelikan! • AMPro 2026
     </div>
 </div>
 
@@ -270,7 +270,7 @@
             try {
                 const { status, data } = await callApi('verify', currentEmail, link);
                 if (status === 200 && data.success) {
-                    setStatus('success', '🎉 ' + data.message, 'Selamat! Akses premium aktif untuk pembelajaran.');
+                    setStatus('success', '🎉 ' + data.message, 'Selamat! Akses premium aktif selama satu tahun.');
                     stepVerify.classList.add('hidden');
                 } else if (status === 429) {
                     disableButtons(60);
@@ -286,7 +286,7 @@
             }
         });
 
-        setStatus('info', 'Masukkan email dan kirim magic link.', 'Proses aman melalui server proxy.');
+        setStatus('info', 'Masukkan email.', 'Untuk kirim magic link.');
     })();
 </script>
 </body>
