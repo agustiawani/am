@@ -1,9 +1,0 @@
-{
-  "name": "am",
-  "version": "1.0.0",
-  "description": "AM",
-  "type": "module",
-  "engines": {
-    "node": ">=18.x"
-  }
-}
