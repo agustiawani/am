@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alight Motion · Premium Generator</title>
+    <title>Alight Motion · Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
@@ -26,22 +26,13 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.06);
             border: 1px solid rgba(0,0,0,0.02);
         }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.25rem;
-        }
+        .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; }
         .logo-icon {
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             background: linear-gradient(145deg, #2563eb, #7c3aed);
             border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 1.4rem;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 1.4rem;
             box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
         }
         .logo h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
@@ -93,7 +84,7 @@
             padding: 1rem 1.25rem;
             border: 1.5px solid #e2e8f0;
             margin-top: 1.5rem;
-            min-height: 70px;
+            min-height: 80px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -119,6 +110,8 @@
 
         .footer { margin-top: 2rem; font-size: 0.7rem; color: #94a3b8; text-align: center; }
         .footer i { margin-right: 4px; }
+
+        .countdown { font-weight: 600; color: #dc2626; }
     </style>
 </head>
 <body>
@@ -130,7 +123,7 @@
     </div>
     <div class="subhead">Akses premium untuk pembelajaran & testing</div>
 
-    <!-- STEP 1: Kirim Email -->
+    <!-- STEP 1 -->
     <div id="stepSend">
         <div class="form-group">
             <label for="emailInput"><i class="far fa-envelope" style="margin-right:6px;"></i>Email Tujuan</label>
@@ -141,7 +134,7 @@
         </button>
     </div>
 
-    <!-- STEP 2: Verifikasi Link (muncul setelah sukses kirim) -->
+    <!-- STEP 2 -->
     <div id="stepVerify" class="hidden" style="margin-top:1.5rem;">
         <div class="form-group">
             <label for="linkInput"><i class="fas fa-link" style="margin-right:6px;"></i>Tempel Link Verifikasi</label>
@@ -155,12 +148,12 @@
         </p>
     </div>
 
-    <!-- Result / Status -->
+    <!-- Result -->
     <div class="result-box" id="resultBox">
         <div id="resultContent">
             <span class="status-badge badge-info" id="badgeStatus">⏳ Menunggu</span>
             <div class="msg" id="mainMessage">Masukkan email dan kirim magic link.</div>
-            <div class="sub-msg" id="subMessage">API tidak terekspos, semua proses melalui server proxy.</div>
+            <div class="sub-msg" id="subMessage">Proses aman melalui server proxy.</div>
         </div>
     </div>
 
@@ -181,6 +174,7 @@
         const subMsg = document.getElementById('subMessage');
 
         let currentEmail = '';
+        let countdownTimer = null;
 
         function setStatus(type, main, sub) {
             badgeStatus.className = 'status-badge';
@@ -194,20 +188,37 @@
             subMsg.textContent = sub || '';
         }
 
+        function disableButtons(seconds) {
+            const btns = [btnSend, btnVerify];
+            btns.forEach(b => b.disabled = true);
+            let remaining = seconds;
+            setStatus('error', `⏳ Terlalu banyak permintaan. Tunggu ${remaining} detik.`, 'Silakan coba lagi nanti.');
+            countdownTimer = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                    btns.forEach(b => b.disabled = false);
+                    setStatus('info', 'Siap mencoba lagi.', 'Kirim magic link atau verifikasi ulang.');
+                } else {
+                    setStatus('error', `⏳ Terlalu banyak permintaan. Tunggu ${remaining} detik.`, 'Silakan coba lagi nanti.');
+                }
+            }, 1000);
+        }
+
         async function callApi(action, email, link = null) {
             const payload = { email, action };
             if (link) payload.link = link;
-
             const res = await fetch('/api/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
-            return data;
+            return { status: res.status, data };
         }
 
-        // Tombol Kirim
+        // Send
         btnSend.addEventListener('click', async function() {
             const email = emailInput.value.trim();
             if (!email) {
@@ -215,31 +226,32 @@
                 return;
             }
             currentEmail = email;
-
             btnSend.disabled = true;
             btnSend.querySelector('span').textContent = 'Mengirim...';
             setStatus('pending', '⏳ Mengirim magic link...', 'Mohon tunggu, proses proxy sedang berjalan.');
 
             try {
-                const data = await callApi('send', email);
-                if (data.success) {
+                const { status, data } = await callApi('send', email);
+                if (status === 200 && data.success) {
                     setStatus('success', '✅ ' + data.message, 'Silakan cek email Anda.');
                     stepVerify.classList.remove('hidden');
                     linkInput.value = '';
+                } else if (status === 429) {
+                    // Rate limit – disable tombol selama 60 detik
+                    disableButtons(60);
                 } else {
-                    let errMsg = data.message || 'Gagal mengirim.';
-                    if (data.retry_after) errMsg += ` (Coba lagi ${data.retry_after} detik)`;
-                    setStatus('error', '❌ ' + errMsg, 'Periksa kembali email atau tunggu rate limit.');
+                    setStatus('error', '❌ ' + (data.message || 'Gagal mengirim.'), 'Periksa kembali email atau coba lagi nanti.');
                 }
             } catch (err) {
                 setStatus('error', '❌ Gagal terhubung ke server proxy.', 'Cek koneksi internet Anda.');
             } finally {
                 btnSend.disabled = false;
                 btnSend.querySelector('span').textContent = 'Kirim Magic Link';
+                if (countdownTimer) btnSend.disabled = true; // jika rate limit, tombol akan tetap disable
             }
         });
 
-        // Tombol Verifikasi
+        // Verify
         btnVerify.addEventListener('click', async function() {
             const link = linkInput.value.trim();
             if (!link) {
@@ -253,28 +265,28 @@
 
             btnVerify.disabled = true;
             btnVerify.querySelector('span').textContent = 'Memverifikasi...';
-            setStatus('pending', '⏳ Memverifikasi link...', 'Menukarkan kode dengan Firebase...');
+            setStatus('pending', '⏳ Memverifikasi link...', 'Menukarkan kode dengan server...');
 
             try {
-                const data = await callApi('verify', currentEmail, link);
-                if (data.success) {
+                const { status, data } = await callApi('verify', currentEmail, link);
+                if (status === 200 && data.success) {
                     setStatus('success', '🎉 ' + data.message, 'Selamat! Akses premium aktif untuk pembelajaran.');
                     stepVerify.classList.add('hidden');
+                } else if (status === 429) {
+                    disableButtons(60);
                 } else {
-                    let errMsg = data.message || 'Gagal verifikasi.';
-                    if (data.retry_after) errMsg += ` (Coba lagi ${data.retry_after} detik)`;
-                    setStatus('error', '❌ ' + errMsg, 'Pastikan link yang dimasukkan benar dan belum expired.');
+                    setStatus('error', '❌ ' + (data.message || 'Gagal verifikasi.'), 'Pastikan link yang dimasukkan benar dan belum expired.');
                 }
             } catch (err) {
                 setStatus('error', '❌ Gagal terhubung ke server proxy.', 'Cek koneksi internet Anda.');
             } finally {
                 btnVerify.disabled = false;
                 btnVerify.querySelector('span').textContent = 'Verifikasi & Aktivasi';
+                if (countdownTimer) btnVerify.disabled = true;
             }
         });
 
-        // Inisialisasi
-        setStatus('info', 'Masukkan email dan kirim magic link.', 'API tidak terekspos, semua proses melalui server proxy.');
+        setStatus('info', 'Masukkan email dan kirim magic link.', 'Proses aman melalui server proxy.');
     })();
 </script>
 </body>
