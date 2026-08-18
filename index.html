@@ -3,51 +3,35 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alight Motion Premium · Generator</title>
-    <!-- Font & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>Alight Motion · Premium Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            background: #f4f6fa;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 1.5rem;
         }
-
         .card {
-            max-width: 520px;
+            max-width: 480px;
             width: 100%;
             background: #ffffff;
             border-radius: 2rem;
-            padding: 2.5rem 2rem 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.03);
-            border: 1px solid rgba(0, 0, 0, 0.02);
-            transition: box-shadow 0.2s ease;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.02);
         }
-
-        .card:hover {
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08);
-        }
-
         .logo {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
-
         .logo-icon {
             width: 44px;
             height: 44px;
@@ -60,220 +44,81 @@
             font-size: 1.4rem;
             box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
         }
+        .logo h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
+        .subhead { font-size: 0.85rem; color: #64748b; margin-bottom: 2rem; padding-left: 0.75rem; border-left: 3px solid #e2e8f0; }
 
-        .logo h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            background: linear-gradient(145deg, #0f172a, #334155);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subhead {
-            font-size: 0.9rem;
-            color: #64748b;
-            margin-bottom: 2rem;
-            padding-left: 0.25rem;
-            border-left: 3px solid #e2e8f0;
-            padding-left: 0.75rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0.4rem;
-        }
-
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #1e293b; margin-bottom: 0.4rem; }
         .form-group input {
             width: 100%;
             padding: 0.85rem 1rem;
             border: 1.5px solid #e2e8f0;
             border-radius: 1rem;
             font-size: 0.95rem;
-            font-family: inherit;
             background: #f8fafc;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: 0.2s;
             outline: none;
-            color: #0f172a;
+            font-family: inherit;
         }
+        .form-group input:focus { border-color: #2563eb; background: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,0.08); }
 
-        .form-group input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
-            background: #ffffff;
-        }
-
-        .form-group input::placeholder {
-            color: #94a3b8;
-        }
-
-        .btn-generate {
+        .btn {
             width: 100%;
             padding: 0.9rem;
-            background: #0f172a;
-            color: #fff;
             border: none;
             border-radius: 1rem;
             font-size: 1rem;
             font-weight: 600;
             font-family: inherit;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
         }
+        .btn-primary { background: #0f172a; color: #fff; box-shadow: 0 4px 12px rgba(15,23,42,0.15); }
+        .btn-primary:hover { background: #1e293b; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .btn-generate:hover {
-            background: #1e293b;
-            box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
-        }
+        .btn-success { background: #059669; color: #fff; box-shadow: 0 4px 12px rgba(5,150,105,0.2); }
+        .btn-success:hover { background: #047857; }
+        .btn-success:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .btn-generate:active {
-            transform: scale(0.98);
-        }
+        .divider { height: 1px; background: #e9edf2; margin: 1.5rem 0; }
 
-        .btn-generate:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-generate i {
-            font-size: 1rem;
-        }
-
-        /* Result card */
-        .result-card {
-            margin-top: 2rem;
-            border-radius: 1.25rem;
-            background: #f1f5f9;
-            padding: 1.5rem;
-            min-height: 100px;
+        .result-box {
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 1rem 1.25rem;
+            border: 1.5px solid #e2e8f0;
+            margin-top: 1.5rem;
+            min-height: 70px;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            text-align: center;
-            transition: background 0.3s, border-color 0.3s;
-            border: 1.5px dashed #cbd5e1;
         }
-
-        .result-card.has-result {
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-style: solid;
-            align-items: flex-start;
-            text-align: left;
-        }
-
-        .result-card .empty-state {
-            color: #94a3b8;
-            font-size: 0.95rem;
-        }
-
-        .result-card .empty-state i {
-            font-size: 2rem;
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #cbd5e1;
-        }
-
-        .result-item {
-            width: 100%;
-        }
-
-        .result-item .label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-            color: #64748b;
-        }
-
-        .result-item .value {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #0f172a;
-            word-break: break-all;
-            margin-top: 0.2rem;
-            padding: 0.5rem 0.75rem;
-            background: #f8fafc;
-            border-radius: 0.75rem;
-            border: 1px solid #eef2f6;
-        }
-
-        .result-item .value.email {
-            font-family: 'Inter', monospace;
-        }
-
-        .result-item .value.link {
-            font-size: 0.8rem;
-            color: #2563eb;
-            word-break: break-all;
-        }
-
-        .status-badge {
+        .result-box .status-badge {
             display: inline-block;
-            padding: 0.25rem 1rem;
+            padding: 0.2rem 0.8rem;
             border-radius: 100px;
             font-size: 0.75rem;
             font-weight: 600;
-            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            width: fit-content;
         }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-error { background: #fee2e2; color: #991b1b; }
+        .badge-pending { background: #fef9c3; color: #854d0e; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
 
-        .status-badge.success {
-            background: #dcfce7;
-            color: #166534;
-        }
+        .result-box .msg { font-size: 0.95rem; color: #0f172a; }
+        .result-box .sub-msg { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
 
-        .status-badge.error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
+        .hidden { display: none !important; }
 
-        .status-badge.pending {
-            background: #fef9c3;
-            color: #854d0e;
-        }
-
-        .footer {
-            margin-top: 1.5rem;
-            font-size: 0.7rem;
-            color: #94a3b8;
-            text-align: center;
-            letter-spacing: 0.02em;
-        }
-
-        .footer a {
-            color: #64748b;
-            text-decoration: none;
-            border-bottom: 1px dotted #cbd5e1;
-        }
-
-        .footer a:hover {
-            color: #0f172a;
-        }
-
-        @media (max-width: 480px) {
-            .card {
-                padding: 1.75rem 1.25rem;
-            }
-            .logo h1 {
-                font-size: 1.2rem;
-            }
-        }
+        .footer { margin-top: 2rem; font-size: 0.7rem; color: #94a3b8; text-align: center; }
+        .footer i { margin-right: 4px; }
     </style>
 </head>
 <body>
@@ -283,152 +128,153 @@
         <div class="logo-icon"><i class="fas fa-bolt"></i></div>
         <h1>Alight Motion · Pro</h1>
     </div>
-    <div class="subhead">Akses premium untuk keperluan pembelajaran</div>
+    <div class="subhead">Akses premium untuk pembelajaran & testing</div>
 
-    <form id="formGenerator">
+    <!-- STEP 1: Kirim Email -->
+    <div id="stepSend">
         <div class="form-group">
-            <label for="emailInput"><i class="far fa-envelope" style="margin-right:6px;color:#64748b;"></i>Alamat Email</label>
-            <input
-            type="email"
-            id="emailInput"
-            placeholder="misal: user@tempmail.com"
-            value="29o1fsuh6u@ruutukf.com"
-            required
-            />
+            <label for="emailInput"><i class="far fa-envelope" style="margin-right:6px;"></i>Email Tujuan</label>
+            <input type="email" id="emailInput" placeholder="contoh: user@mail.com" value="29o1fsuh6u@ruutukf.com" />
         </div>
-
-        <button type="submit" class="btn-generate" id="btnGenerate">
-            <i class="fas fa-key"></i> <span id="btnText">Generate Magic Link</span>
+        <button class="btn btn-primary" id="btnSend">
+            <i class="fas fa-paper-plane"></i> <span>Kirim Magic Link</span>
         </button>
-    </form>
+    </div>
 
-    <!-- Result area -->
-    <div class="result-card" id="resultCard">
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-inbox"></i>
-            <span>Hasil akan muncul di sini</span>
+    <!-- STEP 2: Verifikasi Link (muncul setelah sukses kirim) -->
+    <div id="stepVerify" class="hidden" style="margin-top:1.5rem;">
+        <div class="form-group">
+            <label for="linkInput"><i class="fas fa-link" style="margin-right:6px;"></i>Tempel Link Verifikasi</label>
+            <input type="text" id="linkInput" placeholder="https://alight-creative.firebaseapp.com/__/auth/links?link=..." />
         </div>
-        <div class="result-item" id="resultContent" style="display:none;">
-            <div class="label">Status</div>
-            <div id="statusBadge" class="status-badge pending">⏳ Memproses</div>
+        <button class="btn btn-success" id="btnVerify">
+            <i class="fas fa-check-circle"></i> <span>Verifikasi & Aktivasi</span>
+        </button>
+        <p style="font-size:0.75rem; color:#94a3b8; margin-top:0.5rem; text-align:center;">
+            <i class="fas fa-info-circle"></i> Cek email (termasuk spam) lalu salin seluruh URL-nya.
+        </p>
+    </div>
 
-            <div style="margin-top:1rem;">
-                <div class="label">Email</div>
-                <div class="value email" id="resultEmail">-</div>
-            </div>
-
-            <div style="margin-top:0.75rem;">
-                <div class="label">Link Verifikasi</div>
-                <div class="value link" id="resultLink">-</div>
-            </div>
-
-            <div style="margin-top:0.75rem;">
-                <div class="label">Pesan</div>
-                <div class="value" id="resultMessage" style="font-weight:400;color:#334155;">-</div>
-            </div>
+    <!-- Result / Status -->
+    <div class="result-box" id="resultBox">
+        <div id="resultContent">
+            <span class="status-badge badge-info" id="badgeStatus">⏳ Menunggu</span>
+            <div class="msg" id="mainMessage">Masukkan email dan kirim magic link.</div>
+            <div class="sub-msg" id="subMessage">API tidak terekspos, semua proses melalui server proxy.</div>
         </div>
     </div>
 
     <div class="footer">
-        <i class="fas fa-shield-alt" style="margin-right:4px;"></i>
-        Untuk keperluan pembelajaran · API tidak terekspos
+        <i class="fas fa-shield-alt"></i> Untuk pembelajaran · Backend Proxy Serverless
     </div>
 </div>
 
 <script>
     (function() {
-        const form = document.getElementById('formGenerator');
         const emailInput = document.getElementById('emailInput');
-        const btnGenerate = document.getElementById('btnGenerate');
-        const btnText = document.getElementById('btnText');
-        const resultCard = document.getElementById('resultCard');
-        const emptyState = document.getElementById('emptyState');
-        const resultContent = document.getElementById('resultContent');
-        const statusBadge = document.getElementById('statusBadge');
-        const resultEmail = document.getElementById('resultEmail');
-        const resultLink = document.getElementById('resultLink');
-        const resultMessage = document.getElementById('resultMessage');
+        const linkInput = document.getElementById('linkInput');
+        const btnSend = document.getElementById('btnSend');
+        const btnVerify = document.getElementById('btnVerify');
+        const stepVerify = document.getElementById('stepVerify');
+        const badgeStatus = document.getElementById('badgeStatus');
+        const mainMsg = document.getElementById('mainMessage');
+        const subMsg = document.getElementById('subMessage');
 
-        // Helper: update UI hasil
-        function showResult(status, email, link, message, isSuccess) {
-            emptyState.style.display = 'none';
-            resultContent.style.display = 'block';
-            resultCard.classList.add('has-result');
+        let currentEmail = '';
 
-            // Status badge
-            statusBadge.textContent = status;
-            statusBadge.className = 'status-badge';
-            if (isSuccess === true) {
-                statusBadge.classList.add('success');
-            } else if (isSuccess === false) {
-                statusBadge.classList.add('error');
-            } else {
-                statusBadge.classList.add('pending');
-            }
+        function setStatus(type, main, sub) {
+            badgeStatus.className = 'status-badge';
+            if (type === 'success') badgeStatus.classList.add('badge-success');
+            else if (type === 'error') badgeStatus.classList.add('badge-error');
+            else if (type === 'pending') badgeStatus.classList.add('badge-pending');
+            else badgeStatus.classList.add('badge-info');
 
-            resultEmail.textContent = email || '-';
-            resultLink.textContent = link || '-';
-            resultMessage.textContent = message || '-';
+            badgeStatus.textContent = type.toUpperCase();
+            mainMsg.textContent = main;
+            subMsg.textContent = sub || '';
         }
 
-        // Reset ke empty state
-        function resetResult() {
-            emptyState.style.display = 'block';
-            resultContent.style.display = 'none';
-            resultCard.classList.remove('has-result');
+        async function callApi(action, email, link = null) {
+            const payload = { email, action };
+            if (link) payload.link = link;
+
+            const res = await fetch('/api/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            return data;
         }
 
-        // Handle form submit
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
+        // Tombol Kirim
+        btnSend.addEventListener('click', async function() {
             const email = emailInput.value.trim();
             if (!email) {
-                showResult('Gagal', null, null, 'Masukkan alamat email terlebih dahulu.', false);
+                setStatus('error', '❌ Email tidak boleh kosong', 'Masukkan alamat email yang valid.');
+                return;
+            }
+            currentEmail = email;
+
+            btnSend.disabled = true;
+            btnSend.querySelector('span').textContent = 'Mengirim...';
+            setStatus('pending', '⏳ Mengirim magic link...', 'Mohon tunggu, proses proxy sedang berjalan.');
+
+            try {
+                const data = await callApi('send', email);
+                if (data.success) {
+                    setStatus('success', '✅ ' + data.message, 'Silakan cek email Anda.');
+                    stepVerify.classList.remove('hidden');
+                    linkInput.value = '';
+                } else {
+                    let errMsg = data.message || 'Gagal mengirim.';
+                    if (data.retry_after) errMsg += ` (Coba lagi ${data.retry_after} detik)`;
+                    setStatus('error', '❌ ' + errMsg, 'Periksa kembali email atau tunggu rate limit.');
+                }
+            } catch (err) {
+                setStatus('error', '❌ Gagal terhubung ke server proxy.', 'Cek koneksi internet Anda.');
+            } finally {
+                btnSend.disabled = false;
+                btnSend.querySelector('span').textContent = 'Kirim Magic Link';
+            }
+        });
+
+        // Tombol Verifikasi
+        btnVerify.addEventListener('click', async function() {
+            const link = linkInput.value.trim();
+            if (!link) {
+                setStatus('error', '❌ Link verifikasi wajib diisi', 'Salin URL dari email dan tempel di sini.');
+                return;
+            }
+            if (!currentEmail) {
+                setStatus('error', '❌ Email tidak ditemukan', 'Klik "Kirim Magic Link" terlebih dahulu.');
                 return;
             }
 
-            // Disable button
-            btnGenerate.disabled = true;
-            btnText.textContent = 'Memproses...';
-            resetResult();
-            showResult('⏳ Mengirim...', email, null, 'Menunggu respons dari server...', null);
+            btnVerify.disabled = true;
+            btnVerify.querySelector('span').textContent = 'Memverifikasi...';
+            setStatus('pending', '⏳ Memverifikasi link...', 'Menukarkan kode dengan Firebase...');
 
             try {
-                // Panggil backend proxy kita (api/index.js)
-                const response = await fetch('/api/generate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    // Tangani error dari backend
-                    const errorMsg = data.error || 'Terjadi kesalahan pada server.';
-                    showResult('Gagal', email, null, errorMsg, false);
-                    return;
+                const data = await callApi('verify', currentEmail, link);
+                if (data.success) {
+                    setStatus('success', '🎉 ' + data.message, 'Selamat! Akses premium aktif untuk pembelajaran.');
+                    stepVerify.classList.add('hidden');
+                } else {
+                    let errMsg = data.message || 'Gagal verifikasi.';
+                    if (data.retry_after) errMsg += ` (Coba lagi ${data.retry_after} detik)`;
+                    setStatus('error', '❌ ' + errMsg, 'Pastikan link yang dimasukkan benar dan belum expired.');
                 }
-
-                // Sukses
-                const link = data.verificationLink || null;
-                const message = data.message || 'Magic link berhasil dikirim & diverifikasi.';
-                showResult('✅ Berhasil', email, link, message, true);
-
             } catch (err) {
-                console.error('Fetch error:', err);
-                showResult('Gagal', email, null, 'Gagal terhubung ke server. Coba lagi nanti.', false);
+                setStatus('error', '❌ Gagal terhubung ke server proxy.', 'Cek koneksi internet Anda.');
             } finally {
-                btnGenerate.disabled = false;
-                btnText.textContent = 'Generate Magic Link';
+                btnVerify.disabled = false;
+                btnVerify.querySelector('span').textContent = 'Verifikasi & Aktivasi';
             }
         });
 
         // Inisialisasi
-        resetResult();
+        setStatus('info', 'Masukkan email dan kirim magic link.', 'API tidak terekspos, semua proses melalui server proxy.');
     })();
 </script>
 </body>
