@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
+        /* --- CSS SAMA PERSIS SEPERTI SEBELUMNYA --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -99,7 +100,6 @@
         .btn-primary { background: #0f172a; color: #fff; box-shadow: 0 4px 12px rgba(15,23,42,0.15); }
         .btn-primary:hover { background: #1e293b; }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
         .btn-success { background: #059669; color: #fff; box-shadow: 0 4px 12px rgba(5,150,105,0.2); }
         .btn-success:hover { background: #047857; }
         .btn-success:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -128,7 +128,6 @@
         .badge-error { background: #fee2e2; color: #991b1b; }
         .badge-pending { background: #fef9c3; color: #854d0e; }
         .badge-info { background: #dbeafe; color: #1e40af; }
-
         .result-box .msg { font-size: 0.95rem; color: #0f172a; }
         .result-box .sub-msg { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
 
@@ -164,7 +163,6 @@
             gap: 0.4rem;
             flex-wrap: wrap;
         }
-
         .inbox-list {
             max-height: 300px;
             overflow-y: auto;
@@ -249,14 +247,8 @@
             text-align: center;
         }
         .footer i { margin-right: 4px; }
-
-        .mt-2 { margin-top: 1rem; }
-        .mb-1 { margin-bottom: 0.5rem; }
-        .text-center { text-align: center; }
         .text-muted { color: #64748b; font-size: 0.8rem; }
-        .flex { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-        .gap-1 { gap: 0.5rem; }
-        .w-full { width: 100%; }
+        .text-center { text-align: center; }
     </style>
 </head>
 <body>
@@ -347,10 +339,10 @@
 
 <script>
     (function() {
-        // --- Konfigurasi ---
+        // --- KONFIGURASI ---
         const TEMP_API = 'https://apiku.irengcloud.com/api/v1/tempmail';
 
-        // --- DOM refs ---
+        // --- DOM REFS ---
         const emailInput = document.getElementById('emailInput');
         const linkInput = document.getElementById('linkInput');
         const btnSend = document.getElementById('btnSend');
@@ -368,13 +360,13 @@
         const modalFrom = document.getElementById('modalFrom');
         const modalBody = document.getElementById('modalBody');
 
-        // --- State ---
+        // --- STATE ---
         let currentEmail = '';
         let tempPassword = '';
         let pollingInterval = null;
         let pollingTimeout = null;
 
-        // --- Utility ---
+        // --- UTILITY ---
         function setStatus(type, main, sub) {
             badgeStatus.className = 'status-badge';
             if (type === 'success') badgeStatus.classList.add('badge-success');
@@ -432,7 +424,7 @@
             }, 1000);
         }
 
-        // --- API calls ---
+        // --- API CALLS ---
         async function generateTempEmail() {
             const res = await fetch(`${TEMP_API}/create`);
             const data = await res.json();
@@ -448,39 +440,72 @@
             return data.data || [];
         }
 
-        // Perbaikan: fetch konten dengan parameter email & password
-        async function fetchEmailContent(email, password, downloadUrl) {
-            // downloadUrl contoh: "/messages/6a8c356e45b4e14273800eb3/download"
-            // Kita ubah menjadi endpoint lengkap dengan parameter
-            const path = downloadUrl.replace('/messages/', '/messages/'); // tidak perlu diubah
-            const url = `${TEMP_API}${path}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-            const res = await fetch(url);
-            const text = await res.text();
-            // Cek apakah response error (misal JSON error)
+        // --- PERBAIKAN UTAMA: 3 METODE FALLBACK ---
+        async function fetchEmailContent(email, password, downloadUrl, sourceUrl) {
+            // Metode 1: downloadUrl dengan parameter
             try {
-                const json = JSON.parse(text);
-                if (json.success === false) {
-                    // Jika error, coba gunakan sourceUrl sebagai alternatif
-                    console.warn('Download gagal, coba alternatif:', json);
-                    return null;
+                const url1 = `${TEMP_API}${downloadUrl}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+                console.log('Mencoba downloadUrl:', url1);
+                const res1 = await fetch(url1);
+                const text1 = await res1.text();
+                // Cek apakah response JSON error
+                try {
+                    const json = JSON.parse(text1);
+                    if (json.success === false) {
+                        console.warn('downloadUrl mengembalikan error:', json);
+                        // Lanjut ke metode 2
+                    } else {
+                        // Jika bukan error, kemungkinan konten email
+                        return text1;
+                    }
+                } catch (e) {
+                    // Bukan JSON, berarti konten email
+                    return text1;
                 }
-                return text;
-            } catch (e) {
-                return text; // kemungkinan plain text
+            } catch (err) {
+                console.warn('Metode 1 gagal:', err);
             }
-        }
 
-        // Alternatif: ambil dari sourceUrl
-        async function fetchEmailContentFromSource(email, password, sourceUrl) {
-            const url = `${TEMP_API}${sourceUrl}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-            const res = await fetch(url);
-            const text = await res.text();
+            // Metode 2: sourceUrl dengan parameter
             try {
-                const json = JSON.parse(text);
-                if (json.success === false) return null;
-                return text;
-            } catch (e) {
-                return text;
+                const url2 = `${TEMP_API}${sourceUrl}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+                console.log('Mencoba sourceUrl:', url2);
+                const res2 = await fetch(url2);
+                const text2 = await res2.text();
+                try {
+                    const json = JSON.parse(text2);
+                    if (json.success === false) {
+                        console.warn('sourceUrl mengembalikan error:', json);
+                    } else {
+                        return text2;
+                    }
+                } catch (e) {
+                    return text2;
+                }
+            } catch (err) {
+                console.warn('Metode 2 gagal:', err);
+            }
+
+            // Metode 3: gunakan endpoint /messages/{id}/source (tanpa "sources")
+            try {
+                const id = downloadUrl.split('/')[2]; // ambil ID dari /messages/ID/download
+                const url3 = `${TEMP_API}/messages/${id}/source?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+                console.log('Mencoba endpoint alternatif:', url3);
+                const res3 = await fetch(url3);
+                const text3 = await res3.text();
+                try {
+                    const json = JSON.parse(text3);
+                    if (json.success === false) {
+                        console.warn('Metode 3 error:', json);
+                        return null;
+                    }
+                    return text3;
+                } catch (e) {
+                    return text3;
+                }
+            } catch (err) {
+                console.warn('Metode 3 gagal:', err);
+                return null;
             }
         }
 
@@ -490,7 +515,7 @@
             return match ? match[1] : null;
         }
 
-        // --- Inbox UI ---
+        // --- INBOX UI ---
         async function renderInbox() {
             if (!currentEmail || !tempPassword) {
                 inboxList.innerHTML = `<div class="inbox-empty">Belum ada temp mail. Klik "Temp Mail" untuk membuat.</div>`;
@@ -521,7 +546,7 @@
                 });
                 inboxList.innerHTML = html;
 
-                // Event klik untuk baca email
+                // Event klik baca email
                 document.querySelectorAll('.inbox-item').forEach(el => {
                     el.addEventListener('click', function() {
                         const idx = parseInt(this.dataset.index);
@@ -529,15 +554,10 @@
                     });
                 });
 
-                // Deteksi link dari email terbaru (yang dari Firebase)
+                // Deteksi link dari email terbaru (dari Firebase)
                 const latest = messages[0];
                 if (latest && latest.from?.address?.includes('firebaseapp.com')) {
-                    // Coba ambil konten
-                    let content = await fetchEmailContent(currentEmail, tempPassword, latest.downloadUrl);
-                    if (!content) {
-                        // Coba pakai sourceUrl
-                        content = await fetchEmailContentFromSource(currentEmail, tempPassword, latest.sourceUrl);
-                    }
+                    const content = await fetchEmailContent(currentEmail, tempPassword, latest.downloadUrl, latest.sourceUrl);
                     if (content) {
                         const link = extractFirebaseLink(content);
                         if (link) {
@@ -562,21 +582,19 @@
             modal.classList.add('active');
 
             try {
-                let content = await fetchEmailContent(currentEmail, tempPassword, msg.downloadUrl);
-                if (!content) {
-                    content = await fetchEmailContentFromSource(currentEmail, tempPassword, msg.sourceUrl);
-                }
+                const content = await fetchEmailContent(currentEmail, tempPassword, msg.downloadUrl, msg.sourceUrl);
                 if (content) {
                     modalBody.textContent = content;
                 } else {
-                    modalBody.textContent = 'Tidak dapat memuat isi email.';
+                    modalBody.textContent = 'Tidak dapat memuat isi email. Coba refresh inbox atau periksa console (F12) untuk detail error.';
                 }
             } catch (err) {
-                modalBody.textContent = 'Gagal memuat isi email.';
+                modalBody.textContent = `Error: ${err.message}`;
+                console.error('Modal error:', err);
             }
         }
 
-        // --- Event: Temp Mail ---
+        // --- EVENT LISTENERS ---
         document.getElementById('btnTempMail').addEventListener('click', async function() {
             try {
                 const { email, password } = await generateTempEmail();
@@ -589,7 +607,6 @@
             }
         });
 
-        // --- Event: Generate Baru ---
         document.getElementById('btnNewTempMail').addEventListener('click', async function() {
             if (confirm('Buat email temp baru? Email lama akan diganti.')) {
                 clearTempState();
@@ -605,7 +622,6 @@
             }
         });
 
-        // --- Event: Refresh Inbox ---
         async function refreshInbox() {
             if (!currentEmail || !tempPassword) {
                 setStatus('info', 'Belum ada temp mail', 'Klik "Temp Mail" untuk membuat.');
@@ -618,7 +634,6 @@
         document.getElementById('btnRefreshInbox').addEventListener('click', refreshInbox);
         document.getElementById('btnRefreshInbox2').addEventListener('click', refreshInbox);
 
-        // --- Event: Kirim Magic Link ---
         btnSend.addEventListener('click', async function() {
             const email = emailInput.value.trim();
             if (!email) {
@@ -652,7 +667,6 @@
                     setStatus('success', '✅ ' + data.message, 'Silakan cek inbox temp mail.');
                     stepVerify.classList.remove('hidden');
                     linkInput.value = '';
-                    // Polling
                     if (pollingInterval) clearInterval(pollingInterval);
                     if (pollingTimeout) clearTimeout(pollingTimeout);
                     let attempts = 0;
@@ -682,7 +696,6 @@
             }
         });
 
-        // --- Event: Verifikasi ---
         btnVerify.addEventListener('click', async function() {
             const link = linkInput.value.trim();
             if (!link) {
@@ -725,13 +738,12 @@
             }
         });
 
-        // --- Modal close ---
         modalClose.addEventListener('click', () => modal.classList.remove('active'));
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.remove('active');
         });
 
-        // --- Inisialisasi ---
+        // --- INISIALISASI ---
         if (loadTempState()) {
             emailInput.value = currentEmail;
             renderInbox();
