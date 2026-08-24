@@ -339,8 +339,8 @@
 
 <script>
     (function() {
-        // --- KONFIGURASI BARU: TempMail.lol ---
-        const TEMP_API = 'https://api.temp-mail.io/api/v3';
+        // --- KONFIGURASI: 1secmail.com (stabil, CORS enabled) ---
+        const TEMP_API = 'https://www.1secmail.com/api/v1/';
 
         // --- DOM REFS ---
         const emailInput = document.getElementById('emailInput');
@@ -417,26 +417,31 @@
             }, 1000);
         }
 
-        // --- API CALLS (TempMail.lol) ---
+        // --- API CALLS (1secmail.com) ---
         async function generateTempEmail() {
-            const res = await fetch(`${TEMP_API}/email/new`);
+            // Minta 1 alamat email random
+            const res = await fetch(`${TEMP_API}?action=genRandomMailbox&count=1`);
             const data = await res.json();
-            if (!data.email) throw new Error('Gagal buat email');
-            return data.email; // langsung return email string
+            if (!Array.isArray(data) || data.length === 0) {
+                throw new Error('Gagal generate email');
+            }
+            return data[0]; // contoh: "c3f8d2@1secmail.com"
         }
 
         async function fetchInbox(email) {
-            const url = `${TEMP_API}/email/${encodeURIComponent(email)}/messages`;
+            const url = `${TEMP_API}?action=getMessages&email=${encodeURIComponent(email)}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error('Gagal ambil inbox');
-            return await res.json();
+            return await res.json(); // array of messages
         }
 
         async function fetchEmailBody(email, messageId) {
-            const url = `${TEMP_API}/email/${encodeURIComponent(email)}/messages/${messageId}/body`;
+            const url = `${TEMP_API}?action=fetchMessage&email=${encodeURIComponent(email)}&id=${messageId}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error('Gagal ambil isi email');
-            return await res.text();
+            const data = await res.json();
+            // 1secmail mengembalikan object dengan body, htmlBody, textBody
+            return data.textBody || data.htmlBody || data.body || '';
         }
 
         function extractFirebaseLink(text) {
@@ -454,7 +459,7 @@
 
             try {
                 const messages = await fetchInbox(currentEmail);
-                if (messages.length === 0) {
+                if (!messages || messages.length === 0) {
                     inboxList.innerHTML = `<div class="inbox-empty">Belum ada email masuk.</div>`;
                     return;
                 }
@@ -463,7 +468,8 @@
                 messages.forEach((msg, index) => {
                     const from = msg.from || 'Tidak diketahui';
                     const subject = msg.subject || '(tanpa subjek)';
-                    const time = new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const date = msg.date ? new Date(msg.date) : new Date();
+                    const time = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     html += `
                         <div class="inbox-item" data-id="${msg.id}" data-index="${index}">
                             <div>
@@ -480,7 +486,7 @@
                 document.querySelectorAll('.inbox-item').forEach(el => {
                     el.addEventListener('click', function() {
                         const msgId = this.dataset.id;
-                        const msg = messages.find(m => m.id === msgId);
+                        const msg = messages.find(m => m.id == msgId);
                         if (msg) openEmailModal(msg);
                     });
                 });
@@ -516,7 +522,7 @@
 
             try {
                 const body = await fetchEmailBody(currentEmail, msg.id);
-                modalBody.textContent = body;
+                modalBody.textContent = body || '(Isi email kosong)';
             } catch (err) {
                 modalBody.textContent = `Gagal memuat isi email: ${err.message}`;
             }
