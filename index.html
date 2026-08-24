@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* --- CSS SAMA PERSIS SEPERTI SEBELUMNYA --- */
+        /* --- CSS SAMA PERSIS SEPERTI SEBELUMNYA, saya singkatkan agar tidak terlalu panjang --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -323,7 +323,7 @@
     </div>
 
     <div class="footer">
-        <i class="fas fa-shield-alt"></i> Untuk pembelajaran · Backend Proxy Serverless
+        <i class="fas fa-shield-alt"></i> AM Pro • 2026
     </div>
 </div>
 
@@ -339,8 +339,8 @@
 
 <script>
     (function() {
-        // --- KONFIGURASI ---
-        const TEMP_API = 'https://apiku.irengcloud.com/api/v1/tempmail';
+        // --- KONFIGURASI BARU: TempMail.lol ---
+        const TEMP_API = 'https://api.temp-mail.io/api/v3';
 
         // --- DOM REFS ---
         const emailInput = document.getElementById('emailInput');
@@ -362,7 +362,6 @@
 
         // --- STATE ---
         let currentEmail = '';
-        let tempPassword = '';
         let pollingInterval = null;
         let pollingTimeout = null;
 
@@ -378,20 +377,16 @@
             subMsg.textContent = sub || '';
         }
 
-        function saveTempState(email, password) {
+        function saveTempState(email) {
             localStorage.setItem('am_temp_email', email);
-            localStorage.setItem('am_temp_password', password);
             currentEmail = email;
-            tempPassword = password;
             inboxEmailLabel.textContent = email || 'Belum ada email';
         }
 
         function loadTempState() {
             const email = localStorage.getItem('am_temp_email');
-            const password = localStorage.getItem('am_temp_password');
-            if (email && password) {
+            if (email) {
                 currentEmail = email;
-                tempPassword = password;
                 emailInput.value = email;
                 inboxEmailLabel.textContent = email;
                 return true;
@@ -401,9 +396,7 @@
 
         function clearTempState() {
             localStorage.removeItem('am_temp_email');
-            localStorage.removeItem('am_temp_password');
             currentEmail = '';
-            tempPassword = '';
             inboxEmailLabel.textContent = 'Belum ada email';
         }
 
@@ -424,89 +417,26 @@
             }, 1000);
         }
 
-        // --- API CALLS ---
+        // --- API CALLS (TempMail.lol) ---
         async function generateTempEmail() {
-            const res = await fetch(`${TEMP_API}/create`);
+            const res = await fetch(`${TEMP_API}/email/new`);
             const data = await res.json();
-            if (data.status !== 'success') throw new Error(data.message || 'Gagal buat email');
-            return { email: data.data.email, password: data.data.password };
+            if (!data.email) throw new Error('Gagal buat email');
+            return data.email; // langsung return email string
         }
 
-        async function fetchInbox(email, password) {
-            const url = `${TEMP_API}/messages?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+        async function fetchInbox(email) {
+            const url = `${TEMP_API}/email/${encodeURIComponent(email)}/messages`;
             const res = await fetch(url);
-            const data = await res.json();
-            if (data.status !== 'success') throw new Error(data.message || 'Gagal ambil inbox');
-            return data.data || [];
+            if (!res.ok) throw new Error('Gagal ambil inbox');
+            return await res.json();
         }
 
-        // --- PERBAIKAN UTAMA: 3 METODE FALLBACK ---
-        async function fetchEmailContent(email, password, downloadUrl, sourceUrl) {
-            // Metode 1: downloadUrl dengan parameter
-            try {
-                const url1 = `${TEMP_API}${downloadUrl}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-                console.log('Mencoba downloadUrl:', url1);
-                const res1 = await fetch(url1);
-                const text1 = await res1.text();
-                // Cek apakah response JSON error
-                try {
-                    const json = JSON.parse(text1);
-                    if (json.success === false) {
-                        console.warn('downloadUrl mengembalikan error:', json);
-                        // Lanjut ke metode 2
-                    } else {
-                        // Jika bukan error, kemungkinan konten email
-                        return text1;
-                    }
-                } catch (e) {
-                    // Bukan JSON, berarti konten email
-                    return text1;
-                }
-            } catch (err) {
-                console.warn('Metode 1 gagal:', err);
-            }
-
-            // Metode 2: sourceUrl dengan parameter
-            try {
-                const url2 = `${TEMP_API}${sourceUrl}?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-                console.log('Mencoba sourceUrl:', url2);
-                const res2 = await fetch(url2);
-                const text2 = await res2.text();
-                try {
-                    const json = JSON.parse(text2);
-                    if (json.success === false) {
-                        console.warn('sourceUrl mengembalikan error:', json);
-                    } else {
-                        return text2;
-                    }
-                } catch (e) {
-                    return text2;
-                }
-            } catch (err) {
-                console.warn('Metode 2 gagal:', err);
-            }
-
-            // Metode 3: gunakan endpoint /messages/{id}/source (tanpa "sources")
-            try {
-                const id = downloadUrl.split('/')[2]; // ambil ID dari /messages/ID/download
-                const url3 = `${TEMP_API}/messages/${id}/source?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-                console.log('Mencoba endpoint alternatif:', url3);
-                const res3 = await fetch(url3);
-                const text3 = await res3.text();
-                try {
-                    const json = JSON.parse(text3);
-                    if (json.success === false) {
-                        console.warn('Metode 3 error:', json);
-                        return null;
-                    }
-                    return text3;
-                } catch (e) {
-                    return text3;
-                }
-            } catch (err) {
-                console.warn('Metode 3 gagal:', err);
-                return null;
-            }
+        async function fetchEmailBody(email, messageId) {
+            const url = `${TEMP_API}/email/${encodeURIComponent(email)}/messages/${messageId}/body`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Gagal ambil isi email');
+            return await res.text();
         }
 
         function extractFirebaseLink(text) {
@@ -517,13 +447,13 @@
 
         // --- INBOX UI ---
         async function renderInbox() {
-            if (!currentEmail || !tempPassword) {
+            if (!currentEmail) {
                 inboxList.innerHTML = `<div class="inbox-empty">Belum ada temp mail. Klik "Temp Mail" untuk membuat.</div>`;
                 return;
             }
 
             try {
-                const messages = await fetchInbox(currentEmail, tempPassword);
+                const messages = await fetchInbox(currentEmail);
                 if (messages.length === 0) {
                     inboxList.innerHTML = `<div class="inbox-empty">Belum ada email masuk.</div>`;
                     return;
@@ -531,11 +461,11 @@
 
                 let html = '';
                 messages.forEach((msg, index) => {
-                    const from = msg.from?.address || 'Tidak diketahui';
+                    const from = msg.from || 'Tidak diketahui';
                     const subject = msg.subject || '(tanpa subjek)';
-                    const time = new Date(msg.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const time = new Date(msg.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
                     html += `
-                        <div class="inbox-item" data-index="${index}">
+                        <div class="inbox-item" data-id="${msg.id}" data-index="${index}">
                             <div>
                                 <div class="subject">${subject}</div>
                                 <div class="from">${from}</div>
@@ -546,20 +476,21 @@
                 });
                 inboxList.innerHTML = html;
 
-                // Event klik baca email
+                // Event klik untuk baca email
                 document.querySelectorAll('.inbox-item').forEach(el => {
                     el.addEventListener('click', function() {
-                        const idx = parseInt(this.dataset.index);
-                        openEmailModal(messages[idx]);
+                        const msgId = this.dataset.id;
+                        const msg = messages.find(m => m.id === msgId);
+                        if (msg) openEmailModal(msg);
                     });
                 });
 
                 // Deteksi link dari email terbaru (dari Firebase)
                 const latest = messages[0];
-                if (latest && latest.from?.address?.includes('firebaseapp.com')) {
-                    const content = await fetchEmailContent(currentEmail, tempPassword, latest.downloadUrl, latest.sourceUrl);
-                    if (content) {
-                        const link = extractFirebaseLink(content);
+                if (latest && latest.from && latest.from.includes('firebaseapp.com')) {
+                    try {
+                        const body = await fetchEmailBody(currentEmail, latest.id);
+                        const link = extractFirebaseLink(body);
                         if (link) {
                             linkInput.value = link;
                             setStatus('success', '📩 Link verifikasi ditemukan!', 'Klik "Verifikasi & Aktivasi" untuk melanjutkan.');
@@ -567,6 +498,8 @@
                                 stepVerify.classList.remove('hidden');
                             }
                         }
+                    } catch (err) {
+                        console.warn('Gagal ambil body email:', err);
                     }
                 }
             } catch (err) {
@@ -577,28 +510,23 @@
 
         async function openEmailModal(msg) {
             modalSubject.textContent = msg.subject || '(tanpa subjek)';
-            modalFrom.textContent = `Dari: ${msg.from?.address || 'Tidak diketahui'}`;
+            modalFrom.textContent = `Dari: ${msg.from || 'Tidak diketahui'}`;
             modalBody.textContent = 'Memuat...';
             modal.classList.add('active');
 
             try {
-                const content = await fetchEmailContent(currentEmail, tempPassword, msg.downloadUrl, msg.sourceUrl);
-                if (content) {
-                    modalBody.textContent = content;
-                } else {
-                    modalBody.textContent = 'Tidak dapat memuat isi email. Coba refresh inbox atau periksa console (F12) untuk detail error.';
-                }
+                const body = await fetchEmailBody(currentEmail, msg.id);
+                modalBody.textContent = body;
             } catch (err) {
-                modalBody.textContent = `Error: ${err.message}`;
-                console.error('Modal error:', err);
+                modalBody.textContent = `Gagal memuat isi email: ${err.message}`;
             }
         }
 
         // --- EVENT LISTENERS ---
         document.getElementById('btnTempMail').addEventListener('click', async function() {
             try {
-                const { email, password } = await generateTempEmail();
-                saveTempState(email, password);
+                const email = await generateTempEmail();
+                saveTempState(email);
                 emailInput.value = email;
                 setStatus('success', '✅ Email sementara dibuat!', `Kirim magic link ke ${email}`);
                 await renderInbox();
@@ -611,8 +539,8 @@
             if (confirm('Buat email temp baru? Email lama akan diganti.')) {
                 clearTempState();
                 try {
-                    const { email, password } = await generateTempEmail();
-                    saveTempState(email, password);
+                    const email = await generateTempEmail();
+                    saveTempState(email);
                     emailInput.value = email;
                     setStatus('success', '✅ Email baru dibuat!', `Email: ${email}`);
                     await renderInbox();
@@ -623,7 +551,7 @@
         });
 
         async function refreshInbox() {
-            if (!currentEmail || !tempPassword) {
+            if (!currentEmail) {
                 setStatus('info', 'Belum ada temp mail', 'Klik "Temp Mail" untuk membuat.');
                 return;
             }
@@ -641,13 +569,8 @@
                 return;
             }
             if (email !== currentEmail) {
-                const savedPass = localStorage.getItem('am_temp_password');
-                if (savedPass && localStorage.getItem('am_temp_email') === email) {
-                    tempPassword = savedPass;
-                } else {
-                    setStatus('error', '❌ Email tidak cocok dengan temp mail', 'Klik "Temp Mail" untuk buat email baru.');
-                    return;
-                }
+                setStatus('error', '❌ Email tidak cocok dengan temp mail', 'Klik "Temp Mail" untuk buat email baru.');
+                return;
             }
 
             btnSend.disabled = true;
