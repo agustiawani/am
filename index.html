@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alight Motion · Generator</title>
+    <title>Alight Motion · Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* --- CSS SAMA PERSIS SEPERTI SEBELUMNYA, saya singkatkan agar tidak terlalu panjang --- */
+        /* CSS singkat, sama seperti sebelumnya */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
@@ -339,8 +339,8 @@
 
 <script>
     (function() {
-        // --- KONFIGURASI: 1secmail.com (stabil, CORS enabled) ---
-        const TEMP_API = 'https://www.1secmail.com/api/v1/';
+        // --- KONFIGURASI: menggunakan proxy backend sendiri ---
+        const PROXY_API = '/api/temp'; // endpoint di Vercel
 
         // --- DOM REFS ---
         const emailInput = document.getElementById('emailInput');
@@ -417,30 +417,29 @@
             }, 1000);
         }
 
-        // --- API CALLS (1secmail.com) ---
+        // --- API CALLS melalui proxy ---
         async function generateTempEmail() {
-            // Minta 1 alamat email random
-            const res = await fetch(`${TEMP_API}?action=genRandomMailbox&count=1`);
+            const res = await fetch(`${PROXY_API}?action=generate`);
+            if (!res.ok) throw new Error('Gagal generate email');
             const data = await res.json();
             if (!Array.isArray(data) || data.length === 0) {
-                throw new Error('Gagal generate email');
+                throw new Error('Respons tidak valid');
             }
-            return data[0]; // contoh: "c3f8d2@1secmail.com"
+            return data[0]; // misal: "c3f8d2@1secmail.com"
         }
 
         async function fetchInbox(email) {
-            const url = `${TEMP_API}?action=getMessages&email=${encodeURIComponent(email)}`;
+            const url = `${PROXY_API}?action=inbox&email=${encodeURIComponent(email)}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error('Gagal ambil inbox');
             return await res.json(); // array of messages
         }
 
         async function fetchEmailBody(email, messageId) {
-            const url = `${TEMP_API}?action=fetchMessage&email=${encodeURIComponent(email)}&id=${messageId}`;
+            const url = `${PROXY_API}?action=read&email=${encodeURIComponent(email)}&id=${messageId}`;
             const res = await fetch(url);
             if (!res.ok) throw new Error('Gagal ambil isi email');
             const data = await res.json();
-            // 1secmail mengembalikan object dengan body, htmlBody, textBody
             return data.textBody || data.htmlBody || data.body || '';
         }
 
