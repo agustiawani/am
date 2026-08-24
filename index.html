@@ -3,131 +3,155 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alight Motion · Pro</title>
+    <title>Alight Motion · Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f4f6fa;
-            min-height: 100vh;
+        /* --- CSS SAMA SEPERTI SEBELUMNYA, TAMBAHKAN INI --- */
+        .inbox-section {
+            margin-top: 2rem;
+            border-top: 2px solid #e9edf2;
+            padding-top: 1.5rem;
+        }
+        .inbox-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
+            margin-bottom: 1rem;
         }
-        .card {
-            max-width: 480px;
-            width: 100%;
-            background: #ffffff;
-            border-radius: 2rem;
-            padding: 2.5rem 2rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.06);
-            border: 1px solid rgba(0,0,0,0.02);
-        }
-        .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; }
-        .logo-icon {
-            width: 44px; height: 44px;
-            background: linear-gradient(145deg, #2563eb, #7c3aed);
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 1.4rem;
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
-        }
-        .logo h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; }
-        .subhead { font-size: 0.85rem; color: #64748b; margin-bottom: 2rem; padding-left: 0.75rem; border-left: 3px solid #e2e8f0; }
-
-        .form-group { margin-bottom: 1.25rem; }
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #1e293b; margin-bottom: 0.4rem; }
-        .form-group input {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 1rem;
-            font-size: 0.95rem;
-            background: #f8fafc;
-            transition: 0.2s;
-            outline: none;
-            font-family: inherit;
-        }
-        .form-group input:focus { border-color: #2563eb; background: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,0.08); }
-
-        .btn {
-            width: 100%;
-            padding: 0.9rem;
-            border: none;
-            border-radius: 1rem;
+        .inbox-header h3 {
             font-size: 1rem;
             font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            color: #0f172a;
         }
-        .btn-primary { background: #0f172a; color: #fff; box-shadow: 0 4px 12px rgba(15,23,42,0.15); }
-        .btn-primary:hover { background: #1e293b; }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .btn-success { background: #059669; color: #fff; box-shadow: 0 4px 12px rgba(5,150,105,0.2); }
-        .btn-success:hover { background: #047857; }
-        .btn-success:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .divider { height: 1px; background: #e9edf2; margin: 1.5rem 0; }
-
-        .result-box {
-            background: #f8fafc;
-            border-radius: 1rem;
-            padding: 1rem 1.25rem;
-            border: 1.5px solid #e2e8f0;
-            margin-top: 1.5rem;
-            min-height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .result-box .status-badge {
-            display: inline-block;
+        .inbox-header .badge-email {
+            font-size: 0.75rem;
+            background: #eef2f6;
             padding: 0.2rem 0.8rem;
             border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            width: fit-content;
+            color: #475569;
         }
-        .badge-success { background: #dcfce7; color: #166534; }
-        .badge-error { background: #fee2e2; color: #991b1b; }
-        .badge-pending { background: #fef9c3; color: #854d0e; }
-        .badge-info { background: #dbeafe; color: #1e40af; }
+        .inbox-controls {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #e9edf2;
+            color: #1e293b;
+        }
+        .btn-sm:hover { background: #d1d9e6; }
+        .btn-sm.primary { background: #2563eb; color: #fff; }
+        .btn-sm.primary:hover { background: #1d4ed8; }
+        .btn-sm.danger { background: #ef4444; color: #fff; }
+        .btn-sm.danger:hover { background: #dc2626; }
 
-        .result-box .msg { font-size: 0.95rem; color: #0f172a; }
-        .result-box .sub-msg { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
+        .inbox-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            padding: 0.5rem;
+        }
+        .inbox-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e9edf2;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .inbox-item:last-child { border-bottom: none; }
+        .inbox-item:hover { background: #f1f5f9; }
+        .inbox-item .subject { font-weight: 500; font-size: 0.85rem; color: #0f172a; }
+        .inbox-item .from { font-size: 0.75rem; color: #64748b; }
+        .inbox-item .time { font-size: 0.7rem; color: #94a3b8; }
+        .inbox-empty {
+            padding: 1.5rem;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            max-width: 600px;
+            width: 100%;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .modal-content .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #94a3b8;
+        }
+        .modal-content .email-body {
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+            border: 1px solid #e2e8f0;
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
         .hidden { display: none !important; }
-
-        .footer { margin-top: 2rem; font-size: 0.7rem; color: #94a3b8; text-align: center; }
-        .footer i { margin-right: 4px; }
-
-        .countdown { font-weight: 600; color: #dc2626; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div class="card" style="max-width: 560px;">
     <div class="logo">
         <div class="logo-icon"><i class="fas fa-bolt"></i></div>
         <h1>Alight Motion · Pro</h1>
     </div>
-    <div class="subhead">Bypass akses premium gratis</div>
+    <div class="subhead">Akses premium untuk pembelajaran & testing</div>
 
     <!-- STEP 1 -->
     <div id="stepSend">
         <div class="form-group">
             <label for="emailInput"><i class="far fa-envelope" style="margin-right:6px;"></i>Email Tujuan</label>
-            <input type="email" id="emailInput" placeholder="contoh: user@mail.com" value="29o1fsuh6u@ruutukf.com" />
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <input type="email" id="emailInput" placeholder="contoh: user@mail.com" style="flex:1; min-width:180px;" />
+                <button type="button" class="btn-sm primary" id="btnTempMail" style="white-space:nowrap;">
+                    <i class="fas fa-magic"></i> Temp Mail
+                </button>
+                <button type="button" class="btn-sm" id="btnRefreshInbox" style="white-space:nowrap;">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+            </div>
+            <small style="color:#94a3b8; display:block; margin-top:4px;">
+                Klik "Temp Mail" untuk buat email sementara. Email akan tetap aktif sampai Anda ganti.
+            </small>
         </div>
         <button class="btn btn-primary" id="btnSend">
             <i class="fas fa-paper-plane"></i> <span>Kirim Magic Link</span>
@@ -144,7 +168,7 @@
             <i class="fas fa-check-circle"></i> <span>Verifikasi & Aktivasi</span>
         </button>
         <p style="font-size:0.75rem; color:#94a3b8; margin-top:0.5rem; text-align:center;">
-            <i class="fas fa-info-circle"></i> Cek email (termasuk spam) lalu salin seluruh URL-nya.
+            <i class="fas fa-info-circle"></i> Link akan otomatis terdeteksi dari inbox temp mail.
         </p>
     </div>
 
@@ -152,18 +176,49 @@
     <div class="result-box" id="resultBox">
         <div id="resultContent">
             <span class="status-badge badge-info" id="badgeStatus">⏳ Menunggu</span>
-            <div class="msg" id="mainMessage">Masukkan email.</div>
-            <div class="sub-msg" id="subMessage">Untuk kirim magic link.</div>
+            <div class="msg" id="mainMessage">Masukkan email dan kirim magic link.</div>
+            <div class="sub-msg" id="subMessage">Proses aman melalui server proxy.</div>
+        </div>
+    </div>
+
+    <!-- INBOX SECTION -->
+    <div class="inbox-section" id="inboxSection">
+        <div class="inbox-header">
+            <div>
+                <h3><i class="fas fa-inbox"></i> Inbox Temp Mail</h3>
+                <span class="badge-email" id="inboxEmailLabel">Belum ada email</span>
+            </div>
+            <div class="inbox-controls">
+                <button class="btn-sm" id="btnRefreshInbox2"><i class="fas fa-sync"></i> Refresh</button>
+                <button class="btn-sm danger" id="btnNewTempMail"><i class="fas fa-plus"></i> Generate Baru</button>
+            </div>
+        </div>
+        <div class="inbox-list" id="inboxList">
+            <div class="inbox-empty">Belum ada email masuk. Buat temp mail dan kirim magic link.</div>
         </div>
     </div>
 
     <div class="footer">
-        <i class="fas fa-shield-alt"></i> Gratis jangan diperjualbelikan! • AMPro 2026
+        <i class="fas fa-shield-alt"></i> Untuk pembelajaran · Backend Proxy Serverless
+    </div>
+</div>
+
+<!-- Modal untuk baca email -->
+<div class="modal-overlay" id="emailModal">
+    <div class="modal-content">
+        <button class="close-btn" id="modalClose">&times;</button>
+        <h4 id="modalSubject" style="margin-bottom:0.5rem;">Subject</h4>
+        <small id="modalFrom" style="color:#64748b;">Dari: </small>
+        <div class="email-body" id="modalBody">...</div>
     </div>
 </div>
 
 <script>
     (function() {
+        // --- Konfigurasi ---
+        const TEMP_API = 'https://apiku.irengcloud.com/api/v1/tempmail';
+
+        // --- DOM refs ---
         const emailInput = document.getElementById('emailInput');
         const linkInput = document.getElementById('linkInput');
         const btnSend = document.getElementById('btnSend');
@@ -172,20 +227,61 @@
         const badgeStatus = document.getElementById('badgeStatus');
         const mainMsg = document.getElementById('mainMessage');
         const subMsg = document.getElementById('subMessage');
+        const inboxList = document.getElementById('inboxList');
+        const inboxEmailLabel = document.getElementById('inboxEmailLabel');
 
+        // Modal
+        const modal = document.getElementById('emailModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalSubject = document.getElementById('modalSubject');
+        const modalFrom = document.getElementById('modalFrom');
+        const modalBody = document.getElementById('modalBody');
+
+        // --- State ---
         let currentEmail = '';
-        let countdownTimer = null;
+        let tempPassword = '';
+        let pollingInterval = null;
+        let pollingTimeout = null;
 
+        // --- Utility functions ---
         function setStatus(type, main, sub) {
             badgeStatus.className = 'status-badge';
             if (type === 'success') badgeStatus.classList.add('badge-success');
             else if (type === 'error') badgeStatus.classList.add('badge-error');
             else if (type === 'pending') badgeStatus.classList.add('badge-pending');
             else badgeStatus.classList.add('badge-info');
-
             badgeStatus.textContent = type.toUpperCase();
             mainMsg.textContent = main;
             subMsg.textContent = sub || '';
+        }
+
+        function saveTempState(email, password) {
+            localStorage.setItem('am_temp_email', email);
+            localStorage.setItem('am_temp_password', password);
+            currentEmail = email;
+            tempPassword = password;
+            inboxEmailLabel.textContent = email || 'Belum ada email';
+        }
+
+        function loadTempState() {
+            const email = localStorage.getItem('am_temp_email');
+            const password = localStorage.getItem('am_temp_password');
+            if (email && password) {
+                currentEmail = email;
+                tempPassword = password;
+                emailInput.value = email;
+                inboxEmailLabel.textContent = email;
+                return true;
+            }
+            return false;
+        }
+
+        function clearTempState() {
+            localStorage.removeItem('am_temp_email');
+            localStorage.removeItem('am_temp_password');
+            currentEmail = '';
+            tempPassword = '';
+            inboxEmailLabel.textContent = 'Belum ada email';
         }
 
         function disableButtons(seconds) {
@@ -193,11 +289,10 @@
             btns.forEach(b => b.disabled = true);
             let remaining = seconds;
             setStatus('error', `⏳ Terlalu banyak permintaan. Tunggu ${remaining} detik.`, 'Silakan coba lagi nanti.');
-            countdownTimer = setInterval(() => {
+            const timer = setInterval(() => {
                 remaining--;
                 if (remaining <= 0) {
-                    clearInterval(countdownTimer);
-                    countdownTimer = null;
+                    clearInterval(timer);
                     btns.forEach(b => b.disabled = false);
                     setStatus('info', 'Siap mencoba lagi.', 'Kirim magic link atau verifikasi ulang.');
                 } else {
@@ -206,87 +301,275 @@
             }, 1000);
         }
 
-        async function callApi(action, email, link = null) {
-            const payload = { email, action };
-            if (link) payload.link = link;
-            const res = await fetch('/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+        // --- API calls ---
+        async function generateTempEmail() {
+            const res = await fetch(`${TEMP_API}/create`);
             const data = await res.json();
-            return { status: res.status, data };
+            if (data.status !== 'success') throw new Error(data.message || 'Gagal buat email');
+            return { email: data.data.email, password: data.data.password };
         }
 
-        // Send
+        async function fetchInbox(email, password) {
+            const url = `${TEMP_API}/messages?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.status !== 'success') throw new Error(data.message || 'Gagal ambil inbox');
+            return data.data || [];
+        }
+
+        async function fetchEmailContent(email, password, downloadUrl) {
+            const url = `${TEMP_API}${downloadUrl}`;
+            const res = await fetch(url);
+            return await res.text();
+        }
+
+        function extractFirebaseLink(text) {
+            const match = text.match(/(https:\/\/alight-creative\.firebaseapp\.com\/__\/auth\/links\?link=[^\s"'>]+)/);
+            return match ? match[1] : null;
+        }
+
+        // --- Inbox UI ---
+        async function renderInbox() {
+            if (!currentEmail || !tempPassword) {
+                inboxList.innerHTML = `<div class="inbox-empty">Belum ada temp mail. Klik "Temp Mail" untuk membuat.</div>`;
+                return;
+            }
+
+            try {
+                const messages = await fetchInbox(currentEmail, tempPassword);
+                if (messages.length === 0) {
+                    inboxList.innerHTML = `<div class="inbox-empty">Belum ada email masuk.</div>`;
+                    return;
+                }
+
+                let html = '';
+                messages.forEach((msg, index) => {
+                    const from = msg.from?.address || 'Tidak diketahui';
+                    const subject = msg.subject || '(tanpa subjek)';
+                    const time = new Date(msg.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    html += `
+                        <div class="inbox-item" data-index="${index}">
+                            <div>
+                                <div class="subject">${subject}</div>
+                                <div class="from">${from}</div>
+                            </div>
+                            <div class="time">${time}</div>
+                        </div>
+                    `;
+                });
+                inboxList.innerHTML = html;
+
+                // Event listener untuk setiap item (baca email)
+                document.querySelectorAll('.inbox-item').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const idx = parseInt(this.dataset.index);
+                        openEmailModal(messages[idx]);
+                    });
+                });
+
+                // Cek apakah ada link verifikasi di email terbaru
+                const latest = messages[0];
+                if (latest && latest.from?.address?.includes('firebaseapp.com')) {
+                    const content = await fetchEmailContent(currentEmail, tempPassword, latest.downloadUrl);
+                    const link = extractFirebaseLink(content);
+                    if (link) {
+                        linkInput.value = link;
+                        setStatus('success', '📩 Link verifikasi ditemukan!', 'Klik "Verifikasi & Aktivasi" untuk melanjutkan.');
+                        if (stepVerify.classList.contains('hidden')) {
+                            stepVerify.classList.remove('hidden');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Inbox error:', err);
+                inboxList.innerHTML = `<div class="inbox-empty">Gagal memuat inbox: ${err.message}</div>`;
+            }
+        }
+
+        function openEmailModal(msg) {
+            modalSubject.textContent = msg.subject || '(tanpa subjek)';
+            modalFrom.textContent = `Dari: ${msg.from?.address || 'Tidak diketahui'}`;
+            modalBody.textContent = 'Memuat...';
+            modal.classList.add('active');
+
+            // Download konten email
+            fetchEmailContent(currentEmail, tempPassword, msg.downloadUrl)
+                .then(content => {
+                    modalBody.textContent = content;
+                })
+                .catch(() => {
+                    modalBody.textContent = 'Gagal memuat isi email.';
+                });
+        }
+
+        // --- Event: Temp Mail ---
+        document.getElementById('btnTempMail').addEventListener('click', async function() {
+            try {
+                const { email, password } = await generateTempEmail();
+                saveTempState(email, password);
+                emailInput.value = email;
+                setStatus('success', '✅ Email sementara dibuat!', `Kirim magic link ke ${email}`);
+                await renderInbox();
+            } catch (err) {
+                setStatus('error', '❌ Gagal buat email sementara', err.message);
+            }
+        });
+
+        // --- Event: Generate Baru (hapus yang lama) ---
+        document.getElementById('btnNewTempMail').addEventListener('click', async function() {
+            if (confirm('Buat email temp baru? Email lama akan diganti.')) {
+                clearTempState();
+                try {
+                    const { email, password } = await generateTempEmail();
+                    saveTempState(email, password);
+                    emailInput.value = email;
+                    setStatus('success', '✅ Email baru dibuat!', `Email: ${email}`);
+                    await renderInbox();
+                } catch (err) {
+                    setStatus('error', '❌ Gagal buat email baru', err.message);
+                }
+            }
+        });
+
+        // --- Event: Refresh Inbox ---
+        async function refreshInbox() {
+            if (!currentEmail || !tempPassword) {
+                setStatus('info', 'Belum ada temp mail', 'Klik "Temp Mail" untuk membuat.');
+                return;
+            }
+            setStatus('pending', '⏳ Memuat inbox...', '');
+            await renderInbox();
+            setStatus('info', 'Inbox diperbarui', '');
+        }
+        document.getElementById('btnRefreshInbox').addEventListener('click', refreshInbox);
+        document.getElementById('btnRefreshInbox2').addEventListener('click', refreshInbox);
+
+        // --- Event: Kirim Magic Link ---
         btnSend.addEventListener('click', async function() {
             const email = emailInput.value.trim();
             if (!email) {
                 setStatus('error', '❌ Email tidak boleh kosong', 'Masukkan alamat email yang valid.');
                 return;
             }
-            currentEmail = email;
+            // Jika email berbeda dengan yang tersimpan, perbarui state
+            if (email !== currentEmail) {
+                // Coba cari password dari localStorage jika ada
+                const savedPass = localStorage.getItem('am_temp_password');
+                if (savedPass && localStorage.getItem('am_temp_email') === email) {
+                    tempPassword = savedPass;
+                } else {
+                    // Jika tidak ada, user harus generate ulang
+                    setStatus('error', '❌ Email tidak cocok dengan temp mail', 'Klik "Temp Mail" untuk buat email baru.');
+                    return;
+                }
+            }
+
             btnSend.disabled = true;
             btnSend.querySelector('span').textContent = 'Mengirim...';
-            setStatus('pending', '⏳ Mengirim magic link...', 'Mohon tunggu, proses proxy sedang berjalan.');
+            setStatus('pending', '⏳ Mengirim magic link...', 'Mohon tunggu...');
 
             try {
-                const { status, data } = await callApi('send', email);
-                if (status === 200 && data.success) {
-                    setStatus('success', '✅ ' + data.message, 'Silakan cek email Anda.');
+                const payload = { email, action: 'send' };
+                const res = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (res.status === 200 && data.success) {
+                    setStatus('success', '✅ ' + data.message, 'Silakan cek inbox temp mail.');
                     stepVerify.classList.remove('hidden');
                     linkInput.value = '';
-                } else if (status === 429) {
-                    // Rate limit – disable tombol selama 60 detik
+                    // Mulai polling inbox untuk link verifikasi
+                    if (pollingInterval) clearInterval(pollingInterval);
+                    if (pollingTimeout) clearTimeout(pollingTimeout);
+                    let attempts = 0;
+                    const maxAttempts = 24; // 2 menit
+                    pollingInterval = setInterval(async () => {
+                        attempts++;
+                        if (attempts > maxAttempts) {
+                            clearInterval(pollingInterval);
+                            setStatus('error', '⏰ Waktu habis', 'Link tidak ditemukan dalam 2 menit.');
+                            return;
+                        }
+                        await renderInbox(); // ini akan otomatis deteksi link
+                    }, 5000);
+                    // Hentikan polling setelah 2 menit
+                    pollingTimeout = setTimeout(() => {
+                        clearInterval(pollingInterval);
+                    }, 120000);
+                } else if (res.status === 429) {
                     disableButtons(60);
                 } else {
-                    setStatus('error', '❌ ' + (data.message || 'Gagal mengirim.'), 'Periksa kembali email atau coba lagi nanti.');
+                    setStatus('error', '❌ ' + (data.message || 'Gagal mengirim.'), 'Coba lagi nanti.');
                 }
             } catch (err) {
-                setStatus('error', '❌ Gagal terhubung ke server proxy.', 'Cek koneksi internet Anda.');
+                setStatus('error', '❌ Gagal terhubung ke server.', 'Cek koneksi internet.');
             } finally {
                 btnSend.disabled = false;
                 btnSend.querySelector('span').textContent = 'Kirim Magic Link';
-                if (countdownTimer) btnSend.disabled = true; // jika rate limit, tombol akan tetap disable
             }
         });
 
-        // Verify
+        // --- Event: Verifikasi ---
         btnVerify.addEventListener('click', async function() {
             const link = linkInput.value.trim();
             if (!link) {
-                setStatus('error', '❌ Link verifikasi wajib diisi', 'Salin URL dari email dan tempel di sini.');
+                setStatus('error', '❌ Link verifikasi wajib diisi', 'Tempel link atau tunggu otomatis terdeteksi.');
                 return;
             }
             if (!currentEmail) {
-                setStatus('error', '❌ Email tidak ditemukan', 'Klik "Kirim Magic Link" terlebih dahulu.');
+                setStatus('error', '❌ Email tidak ditemukan', 'Kirim magic link terlebih dahulu.');
                 return;
             }
 
             btnVerify.disabled = true;
             btnVerify.querySelector('span').textContent = 'Memverifikasi...';
-            setStatus('pending', '⏳ Memverifikasi link...', 'Menukarkan kode dengan server...');
+            setStatus('pending', '⏳ Memverifikasi...', '');
 
             try {
-                const { status, data } = await callApi('verify', currentEmail, link);
-                if (status === 200 && data.success) {
-                    setStatus('success', '🎉 ' + data.message, 'Selamat! Akses premium aktif selama satu tahun.');
+                const payload = { email: currentEmail, action: 'verify', link };
+                const res = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (res.status === 200 && data.success) {
+                    setStatus('success', '🎉 ' + data.message, 'Akses premium aktif!');
                     stepVerify.classList.add('hidden');
-                } else if (status === 429) {
+                    // Hentikan polling
+                    if (pollingInterval) clearInterval(pollingInterval);
+                    if (pollingTimeout) clearTimeout(pollingTimeout);
+                } else if (res.status === 429) {
                     disableButtons(60);
                 } else {
-                    setStatus('error', '❌ ' + (data.message || 'Gagal verifikasi.'), 'Pastikan link yang dimasukkan benar dan belum expired.');
+                    setStatus('error', '❌ ' + (data.message || 'Gagal verifikasi.'), 'Pastikan link benar.');
                 }
             } catch (err) {
-                setStatus('error', '❌ Gagal terhubung ke server proxy.', 'Cek koneksi internet Anda.');
+                setStatus('error', '❌ Gagal verifikasi.', err.message);
             } finally {
                 btnVerify.disabled = false;
                 btnVerify.querySelector('span').textContent = 'Verifikasi & Aktivasi';
-                if (countdownTimer) btnVerify.disabled = true;
             }
         });
 
-        setStatus('info', 'Masukkan email.', 'Untuk kirim magic link.');
+        // --- Modal close ---
+        modalClose.addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
+
+        // --- Inisialisasi ---
+        if (loadTempState()) {
+            emailInput.value = currentEmail;
+            renderInbox();
+            setStatus('info', 'Email temp ditemukan', `Aktif: ${currentEmail}`);
+        } else {
+            setStatus('info', 'Masukkan email atau buat temp mail.', '');
+        }
     })();
 </script>
 </body>
