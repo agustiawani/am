@@ -461,10 +461,39 @@
             return await res.json(); // { subject, from, text, html, ... }
         }
 
-        function extractFirebaseLink(text) {
-            if (!text) return null;
-            const match = text.match(/(https:\/\/alight-creative\.firebaseapp\.com\/__\/auth\/links\?link=[^\s"'>]+)/);
-            return match ? match[1] : null;
+        // --- PERBAIKAN: Ekstrak link dari HTML dan teks ---
+        function extractFirebaseLink(text, html) {
+            let combined = '';
+            if (text) combined += text + ' ';
+            if (html) combined += html + ' ';
+            
+            // Cari pola link Firebase di dalam href atau teks
+            const patterns = [
+                /https:\/\/alight-creative\.firebaseapp\.com\/__\/auth\/links\?link=[^\s"'>]+/gi,
+                /https:\/\/alightcreative\.com\/auth_action\/\?[^\s"'>]+/gi,
+                /https:\/\/alight-creative\.firebaseapp\.com\/__\/auth\/action\?[^\s"'>]+/gi
+            ];
+            
+            for (const pattern of patterns) {
+                const match = combined.match(pattern);
+                if (match) return match[0];
+            }
+            
+            // Coba cari link yang mungkin di dalam href="..."
+            const hrefMatch = combined.match(/href="(https:\/\/alight-creative\.firebaseapp\.com\/[^"]+)"/i);
+            if (hrefMatch) return hrefMatch[1];
+            
+            // Coba cari link dengan oobCode
+            const oobMatch = combined.match(/oobCode=([A-Za-z0-9_-]+)/);
+            const apiKeyMatch = combined.match(/apiKey=([A-Za-z0-9_-]+)/);
+            if (oobMatch && apiKeyMatch) {
+                // Bangun ulang link
+                const apiKey = apiKeyMatch[1];
+                const oobCode = oobMatch[1];
+                return `https://alight-creative.firebaseapp.com/__/auth/links?link=https://alightcreative.com/auth_action/?apiKey=${apiKey}&mode=signIn&oobCode=${oobCode}&continueUrl=https://alightcreative.com&lang=id`;
+            }
+            
+            return null;
         }
 
         // --- INBOX UI ---
@@ -513,14 +542,15 @@
                 if (latest && latest.from && latest.from.toLowerCase().includes('firebaseapp.com')) {
                     try {
                         const detail = await fetchEmailBody(currentToken, latest.id);
-                        const bodyText = detail.text || detail.html || '';
-                        const link = extractFirebaseLink(bodyText);
+                        const link = extractFirebaseLink(detail.text, detail.html);
                         if (link) {
                             linkInput.value = link;
                             setStatus('success', '📩 Link verifikasi ditemukan!', 'Klik "Verifikasi & Aktivasi" untuk melanjutkan.');
                             if (stepVerify.classList.contains('hidden')) {
                                 stepVerify.classList.remove('hidden');
                             }
+                        } else {
+                            console.warn('Link tidak ditemukan di email:', detail);
                         }
                     } catch (err) {
                         console.warn('Gagal ambil body email:', err);
