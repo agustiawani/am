@@ -52,6 +52,8 @@
             font-family: inherit;
         }
         .form-group input:focus { border-color: #2563eb; background: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,0.08); }
+        .form-group input:disabled { background: #eef2f6; color: #94a3b8; cursor: not-allowed; }
+
         .input-group {
             display: flex;
             gap: 8px;
@@ -80,6 +82,9 @@
         .btn-sm.danger:hover { background: #dc2626; }
         .btn-sm.success { background: #059669; color: #fff; }
         .btn-sm.success:hover { background: #047857; }
+        .btn-sm.outline { background: transparent; border: 1.5px solid #e2e8f0; }
+        .btn-sm.outline:hover { background: #f1f5f9; }
+        .btn-sm.active { background: #2563eb; color: #fff; }
 
         .btn {
             width: 100%;
@@ -248,6 +253,27 @@
         .footer i { margin-right: 4px; }
         .text-muted { color: #64748b; font-size: 0.8rem; }
         .text-center { text-align: center; }
+
+        .option-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .option-toggle .btn-sm {
+            flex: 1;
+            justify-content: center;
+        }
+        .cooldown-banner {
+            background: #fef9c3;
+            border: 1.5px solid #facc15;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #713f12;
+            display: none;
+        }
+        .cooldown-banner strong { color: #b45309; }
     </style>
 </head>
 <body>
@@ -259,26 +285,43 @@
     </div>
     <div class="subhead">Akses premium untuk pembelajaran & testing</div>
 
+    <!-- Pilihan Email -->
+    <div class="option-toggle" id="emailOptionToggle">
+        <button class="btn-sm active" data-option="private" id="optPrivate">
+            <i class="fas fa-user"></i> Email Pribadi
+        </button>
+        <button class="btn-sm" data-option="temp" id="optTemp">
+            <i class="fas fa-magic"></i> Temp Mail
+        </button>
+    </div>
+
     <!-- STEP 1 -->
     <div id="stepSend">
         <div class="form-group">
             <label for="emailInput"><i class="far fa-envelope" style="margin-right:6px;"></i>Email Tujuan</label>
             <div class="input-group">
                 <input type="email" id="emailInput" placeholder="contoh: user@mail.com" />
-                <button type="button" class="btn-sm primary" id="btnTempMail">
-                    <i class="fas fa-magic"></i> Temp Mail
+                <button type="button" class="btn-sm primary" id="btnTempMail" disabled>
+                    <i class="fas fa-magic"></i> Buat Temp
                 </button>
-                <button type="button" class="btn-sm" id="btnRefreshInbox">
+                <button type="button" class="btn-sm" id="btnRefreshInbox" disabled>
                     <i class="fas fa-sync"></i> Refresh
                 </button>
             </div>
             <small class="text-muted" style="display:block; margin-top:4px;">
-                Klik "Temp Mail" untuk buat email sementara. Email akan tetap aktif sampai Anda ganti.
+                Pilih "Email Pribadi" untuk memasukkan sendiri, atau "Temp Mail" untuk buat otomatis.
             </small>
         </div>
         <button class="btn btn-primary" id="btnSend">
             <i class="fas fa-paper-plane"></i> <span>Kirim Magic Link</span>
         </button>
+    </div>
+
+    <!-- Cooldown banner -->
+    <div class="cooldown-banner" id="cooldownBanner">
+        <i class="fas fa-clock"></i> <strong>Rate Limit 5 Menit</strong><br />
+        Server hanya mengizinkan 1 permintaan per 5 menit. Tunggu <span id="cooldownTimer">5:00</span> sebelum mencoba lagi.
+        <br /><small>Semua data akan direset otomatis setelah cooldown selesai.</small>
     </div>
 
     <!-- STEP 2 -->
@@ -312,8 +355,8 @@
                 <span class="badge-email" id="inboxEmailLabel">Belum ada email</span>
             </div>
             <div class="inbox-controls">
-                <button class="btn-sm" id="btnRefreshInbox2"><i class="fas fa-sync"></i> Refresh</button>
-                <button class="btn-sm danger" id="btnNewTempMail"><i class="fas fa-plus"></i> Generate Baru</button>
+                <button class="btn-sm" id="btnRefreshInbox2" disabled><i class="fas fa-sync"></i> Refresh</button>
+                <button class="btn-sm danger" id="btnNewTempMail" disabled><i class="fas fa-plus"></i> Generate Baru</button>
             </div>
         </div>
         <div class="inbox-list" id="inboxList">
@@ -338,8 +381,9 @@
 
 <script>
     (function() {
-        // --- KONFIGURASI: TempMailPortal API ---
+        // --- KONFIGURASI ---
         const TEMP_API = 'https://api.tempmailportal.com/api';
+        const COOLDOWN_SECONDS = 300; // 5 menit
 
         // --- DOM REFS ---
         const emailInput = document.getElementById('emailInput');
@@ -353,6 +397,17 @@
         const inboxList = document.getElementById('inboxList');
         const inboxEmailLabel = document.getElementById('inboxEmailLabel');
 
+        const btnTempMail = document.getElementById('btnTempMail');
+        const btnRefreshInbox = document.getElementById('btnRefreshInbox');
+        const btnRefreshInbox2 = document.getElementById('btnRefreshInbox2');
+        const btnNewTempMail = document.getElementById('btnNewTempMail');
+
+        const optPrivate = document.getElementById('optPrivate');
+        const optTemp = document.getElementById('optTemp');
+
+        const cooldownBanner = document.getElementById('cooldownBanner');
+        const cooldownTimer = document.getElementById('cooldownTimer');
+
         const modal = document.getElementById('emailModal');
         const modalClose = document.getElementById('modalClose');
         const modalSubject = document.getElementById('modalSubject');
@@ -362,8 +417,10 @@
         // --- STATE ---
         let currentEmail = '';
         let currentToken = '';
+        let emailOption = 'private'; // 'private' atau 'temp'
         let pollingInterval = null;
         let pollingTimeout = null;
+        let cooldownInterval = null;
 
         // --- UTILITY ---
         function setStatus(type, main, sub) {
@@ -406,21 +463,73 @@
             inboxEmailLabel.textContent = 'Belum ada email';
         }
 
-        function disableButtons(seconds) {
-            const btns = [btnSend, btnVerify];
-            btns.forEach(b => b.disabled = true);
-            let remaining = seconds;
-            setStatus('error', `⏳ Terlalu banyak permintaan. Tunggu ${remaining} detik.`, 'Silakan coba lagi nanti.');
-            const timer = setInterval(() => {
+        function resetAllData() {
+            clearTempState();
+            linkInput.value = '';
+            stepVerify.classList.add('hidden');
+            if (pollingInterval) clearInterval(pollingInterval);
+            if (pollingTimeout) clearTimeout(pollingTimeout);
+            pollingInterval = null;
+            pollingTimeout = null;
+            // Reset inbox
+            inboxList.innerHTML = `<div class="inbox-empty">Data telah direset. Silakan kirim ulang magic link.</div>`;
+            setStatus('info', 'Data direset', 'Kirim ulang magic link untuk mencoba lagi.');
+            // Enable buttons
+            btnSend.disabled = false;
+            btnVerify.disabled = false;
+            // Disable temp mail buttons jika mode private
+            updateTempMailButtons();
+        }
+
+        function startCooldown() {
+            let remaining = COOLDOWN_SECONDS;
+            cooldownBanner.style.display = 'block';
+            btnSend.disabled = true;
+            btnVerify.disabled = true;
+            updateCooldownDisplay(remaining);
+
+            if (cooldownInterval) clearInterval(cooldownInterval);
+            cooldownInterval = setInterval(() => {
                 remaining--;
                 if (remaining <= 0) {
-                    clearInterval(timer);
-                    btns.forEach(b => b.disabled = false);
-                    setStatus('info', 'Siap mencoba lagi.', 'Kirim magic link atau verifikasi ulang.');
+                    clearInterval(cooldownInterval);
+                    cooldownInterval = null;
+                    cooldownBanner.style.display = 'none';
+                    btnSend.disabled = false;
+                    btnVerify.disabled = false;
+                    // Reset semua data setelah cooldown selesai
+                    resetAllData();
+                    setStatus('info', 'Cooldown selesai', 'Siap mengirim magic link lagi.');
                 } else {
-                    setStatus('error', `⏳ Terlalu banyak permintaan. Tunggu ${remaining} detik.`, 'Silakan coba lagi nanti.');
+                    updateCooldownDisplay(remaining);
                 }
             }, 1000);
+        }
+
+        function updateCooldownDisplay(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            cooldownTimer.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateTempMailButtons() {
+            const isTemp = (emailOption === 'temp');
+            btnTempMail.disabled = !isTemp;
+            btnRefreshInbox.disabled = !isTemp;
+            btnRefreshInbox2.disabled = !isTemp;
+            btnNewTempMail.disabled = !isTemp;
+            if (!isTemp) {
+                // Jika private, nonaktifkan field email
+                emailInput.disabled = false;
+                // Hapus token temp
+                clearTempState();
+            } else {
+                emailInput.disabled = true;
+                // Jika temp dan belum ada email, generate otomatis
+                if (!currentEmail) {
+                    generateTempEmailAuto();
+                }
+            }
         }
 
         // --- API CALLS (TempMailPortal) ---
@@ -439,6 +548,18 @@
             return { email: data.address, token: data.token };
         }
 
+        async function generateTempEmailAuto() {
+            try {
+                const { email, token } = await generateTempEmail();
+                saveTempState(email, token);
+                emailInput.value = email;
+                setStatus('success', '✅ Email sementara dibuat!', `Kirim magic link ke ${email}`);
+                await renderInbox();
+            } catch (err) {
+                setStatus('error', '❌ Gagal buat email sementara', err.message);
+            }
+        }
+
         async function fetchInbox(token) {
             const res = await fetch(`${TEMP_API}/messages`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -447,7 +568,7 @@
                 const err = await res.text();
                 throw new Error(err || 'Gagal ambil inbox');
             }
-            return await res.json(); // array of messages
+            return await res.json();
         }
 
         async function fetchEmailBody(token, messageId) {
@@ -458,16 +579,14 @@
                 const err = await res.text();
                 throw new Error(err || 'Gagal ambil isi email');
             }
-            return await res.json(); // { subject, from, text, html, ... }
+            return await res.json();
         }
 
-        // --- PERBAIKAN: Ekstrak link dari HTML dan teks ---
         function extractFirebaseLink(text, html) {
             let combined = '';
             if (text) combined += text + ' ';
             if (html) combined += html + ' ';
             
-            // Cari pola link Firebase di dalam href atau teks
             const patterns = [
                 /https:\/\/alight-creative\.firebaseapp\.com\/__\/auth\/links\?link=[^\s"'>]+/gi,
                 /https:\/\/alightcreative\.com\/auth_action\/\?[^\s"'>]+/gi,
@@ -479,15 +598,12 @@
                 if (match) return match[0];
             }
             
-            // Coba cari link yang mungkin di dalam href="..."
             const hrefMatch = combined.match(/href="(https:\/\/alight-creative\.firebaseapp\.com\/[^"]+)"/i);
             if (hrefMatch) return hrefMatch[1];
             
-            // Coba cari link dengan oobCode
             const oobMatch = combined.match(/oobCode=([A-Za-z0-9_-]+)/);
             const apiKeyMatch = combined.match(/apiKey=([A-Za-z0-9_-]+)/);
             if (oobMatch && apiKeyMatch) {
-                // Bangun ulang link
                 const apiKey = apiKeyMatch[1];
                 const oobCode = oobMatch[1];
                 return `https://alight-creative.firebaseapp.com/__/auth/links?link=https://alightcreative.com/auth_action/?apiKey=${apiKey}&mode=signIn&oobCode=${oobCode}&continueUrl=https://alightcreative.com&lang=id`;
@@ -499,7 +615,7 @@
         // --- INBOX UI ---
         async function renderInbox() {
             if (!currentEmail || !currentToken) {
-                inboxList.innerHTML = `<div class="inbox-empty">Belum ada temp mail. Klik "Temp Mail" untuk membuat.</div>`;
+                inboxList.innerHTML = `<div class="inbox-empty">Belum ada temp mail. Pilih "Temp Mail" untuk membuat.</div>`;
                 return;
             }
 
@@ -528,7 +644,6 @@
                 });
                 inboxList.innerHTML = html;
 
-                // Event klik untuk baca email
                 document.querySelectorAll('.inbox-item').forEach(el => {
                     el.addEventListener('click', function() {
                         const msgId = this.dataset.id;
@@ -537,7 +652,6 @@
                     });
                 });
 
-                // Deteksi link dari email terbaru (dari Firebase)
                 const latest = messages[0];
                 if (latest && latest.from && latest.from.toLowerCase().includes('firebaseapp.com')) {
                     try {
@@ -549,8 +663,6 @@
                             if (stepVerify.classList.contains('hidden')) {
                                 stepVerify.classList.remove('hidden');
                             }
-                        } else {
-                            console.warn('Link tidak ditemukan di email:', detail);
                         }
                     } catch (err) {
                         console.warn('Gagal ambil body email:', err);
@@ -577,8 +689,38 @@
             }
         }
 
-        // --- EVENT LISTENERS ---
-        document.getElementById('btnTempMail').addEventListener('click', async function() {
+        // --- EVENT: Opsi Email ---
+        optPrivate.addEventListener('click', function() {
+            emailOption = 'private';
+            optPrivate.classList.add('active');
+            optTemp.classList.remove('active');
+            emailInput.disabled = false;
+            emailInput.value = '';
+            clearTempState();
+            updateTempMailButtons();
+            setStatus('info', 'Mode Email Pribadi', 'Masukkan email Anda sendiri.');
+            // Reset inbox
+            inboxList.innerHTML = `<div class="inbox-empty">Mode Email Pribadi. Masukkan email dan kirim magic link.</div>`;
+        });
+
+        optTemp.addEventListener('click', function() {
+            emailOption = 'temp';
+            optTemp.classList.add('active');
+            optPrivate.classList.remove('active');
+            emailInput.disabled = true;
+            updateTempMailButtons();
+            if (!currentEmail) {
+                generateTempEmailAuto();
+            } else {
+                emailInput.value = currentEmail;
+                renderInbox();
+                setStatus('info', 'Mode Temp Mail', `Email aktif: ${currentEmail}`);
+            }
+        });
+
+        // --- EVENT: Buat Temp Mail ---
+        btnTempMail.addEventListener('click', async function() {
+            if (emailOption !== 'temp') return;
             try {
                 const { email, token } = await generateTempEmail();
                 saveTempState(email, token);
@@ -590,7 +732,8 @@
             }
         });
 
-        document.getElementById('btnNewTempMail').addEventListener('click', async function() {
+        btnNewTempMail.addEventListener('click', async function() {
+            if (emailOption !== 'temp') return;
             if (confirm('Buat email temp baru? Email lama akan diganti.')) {
                 clearTempState();
                 try {
@@ -605,27 +748,33 @@
             }
         });
 
+        // --- EVENT: Refresh Inbox ---
         async function refreshInbox() {
-            if (!currentEmail || !currentToken) {
-                setStatus('info', 'Belum ada temp mail', 'Klik "Temp Mail" untuk membuat.');
+            if (emailOption !== 'temp' || !currentEmail || !currentToken) {
+                setStatus('info', 'Belum ada temp mail', 'Pilih "Temp Mail" untuk membuat.');
                 return;
             }
             setStatus('pending', '⏳ Memuat inbox...', '');
             await renderInbox();
             setStatus('info', 'Inbox diperbarui', '');
         }
-        document.getElementById('btnRefreshInbox').addEventListener('click', refreshInbox);
-        document.getElementById('btnRefreshInbox2').addEventListener('click', refreshInbox);
+        btnRefreshInbox.addEventListener('click', refreshInbox);
+        btnRefreshInbox2.addEventListener('click', refreshInbox);
 
+        // --- EVENT: Kirim Magic Link ---
         btnSend.addEventListener('click', async function() {
             const email = emailInput.value.trim();
             if (!email) {
                 setStatus('error', '❌ Email tidak boleh kosong', 'Masukkan alamat email yang valid.');
                 return;
             }
-            if (email !== currentEmail) {
-                setStatus('error', '❌ Email tidak cocok dengan temp mail', 'Klik "Temp Mail" untuk buat email baru.');
-                return;
+
+            // Jika mode temp, pastikan email cocok dengan state
+            if (emailOption === 'temp') {
+                if (email !== currentEmail) {
+                    setStatus('error', '❌ Email tidak cocok dengan temp mail', 'Klik "Buat Temp" untuk membuat email baru.');
+                    return;
+                }
             }
 
             btnSend.disabled = true;
@@ -642,46 +791,65 @@
                 const data = await res.json();
 
                 if (res.status === 200 && data.success) {
-                    setStatus('success', '✅ ' + data.message, 'Silakan cek inbox temp mail.');
+                    setStatus('success', '✅ ' + data.message, 'Silakan cek inbox email Anda.');
                     stepVerify.classList.remove('hidden');
                     linkInput.value = '';
-                    if (pollingInterval) clearInterval(pollingInterval);
-                    if (pollingTimeout) clearTimeout(pollingTimeout);
-                    let attempts = 0;
-                    const maxAttempts = 24;
-                    pollingInterval = setInterval(async () => {
-                        attempts++;
-                        if (attempts > maxAttempts) {
+                    // Mulai cooldown 5 menit
+                    startCooldown();
+                    // Jika mode temp, mulai polling
+                    if (emailOption === 'temp' && currentToken) {
+                        if (pollingInterval) clearInterval(pollingInterval);
+                        if (pollingTimeout) clearTimeout(pollingTimeout);
+                        let attempts = 0;
+                        const maxAttempts = 24;
+                        pollingInterval = setInterval(async () => {
+                            attempts++;
+                            if (attempts > maxAttempts) {
+                                clearInterval(pollingInterval);
+                                setStatus('error', '⏰ Waktu habis', 'Link tidak ditemukan dalam 2 menit.');
+                                return;
+                            }
+                            await renderInbox();
+                        }, 5000);
+                        pollingTimeout = setTimeout(() => {
                             clearInterval(pollingInterval);
-                            setStatus('error', '⏰ Waktu habis', 'Link tidak ditemukan dalam 2 menit.');
-                            return;
-                        }
-                        await renderInbox();
-                    }, 5000);
-                    pollingTimeout = setTimeout(() => {
-                        clearInterval(pollingInterval);
-                    }, 120000);
+                        }, 120000);
+                    }
                 } else if (res.status === 429) {
-                    disableButtons(60);
+                    // Rate limit dari API eksternal, trigger cooldown
+                    const retryAfter = data.retry_after || 60;
+                    setStatus('error', '⏳ Rate limit', `Tunggu ${retryAfter} detik.`);
+                    startCooldown();
                 } else {
                     setStatus('error', '❌ ' + (data.message || 'Gagal mengirim.'), 'Coba lagi nanti.');
+                    btnSend.disabled = false;
                 }
             } catch (err) {
                 setStatus('error', '❌ Gagal terhubung ke server.', 'Cek koneksi internet.');
-            } finally {
                 btnSend.disabled = false;
+            } finally {
+                if (!cooldownInterval) {
+                    btnSend.disabled = false;
+                }
                 btnSend.querySelector('span').textContent = 'Kirim Magic Link';
             }
         });
 
+        // --- EVENT: Verifikasi ---
         btnVerify.addEventListener('click', async function() {
             const link = linkInput.value.trim();
             if (!link) {
                 setStatus('error', '❌ Link verifikasi wajib diisi', 'Tempel link atau tunggu otomatis terdeteksi.');
                 return;
             }
-            if (!currentEmail) {
+            if (!currentEmail && emailOption === 'temp') {
                 setStatus('error', '❌ Email tidak ditemukan', 'Kirim magic link terlebih dahulu.');
+                return;
+            }
+
+            const email = emailOption === 'temp' ? currentEmail : emailInput.value.trim();
+            if (!email) {
+                setStatus('error', '❌ Email tidak valid', 'Masukkan email dengan benar.');
                 return;
             }
 
@@ -690,7 +858,7 @@
             setStatus('pending', '⏳ Memverifikasi...', '');
 
             try {
-                const payload = { email: currentEmail, action: 'verify', link };
+                const payload = { email, action: 'verify', link };
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -703,31 +871,46 @@
                     stepVerify.classList.add('hidden');
                     if (pollingInterval) clearInterval(pollingInterval);
                     if (pollingTimeout) clearTimeout(pollingTimeout);
+                    // Reset data setelah verifikasi berhasil
+                    setTimeout(() => {
+                        resetAllData();
+                        setStatus('info', 'Data direset', 'Silakan kirim ulang untuk akun lain.');
+                    }, 3000);
                 } else if (res.status === 429) {
-                    disableButtons(60);
+                    const retryAfter = data.retry_after || 60;
+                    setStatus('error', '⏳ Rate limit', `Tunggu ${retryAfter} detik.`);
+                    startCooldown();
                 } else {
                     setStatus('error', '❌ ' + (data.message || 'Gagal verifikasi.'), 'Pastikan link benar.');
                 }
             } catch (err) {
                 setStatus('error', '❌ Gagal verifikasi.', err.message);
             } finally {
-                btnVerify.disabled = false;
+                if (!cooldownInterval) {
+                    btnVerify.disabled = false;
+                }
                 btnVerify.querySelector('span').textContent = 'Verifikasi & Aktivasi';
             }
         });
 
+        // --- Modal close ---
         modalClose.addEventListener('click', () => modal.classList.remove('active'));
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.remove('active');
         });
 
         // --- INISIALISASI ---
+        // Default: Private
+        emailOption = 'private';
+        optPrivate.classList.add('active');
+        emailInput.disabled = false;
+        updateTempMailButtons();
+        setStatus('info', 'Mode Email Pribadi', 'Masukkan email Anda sendiri.');
+
+        // Cek apakah ada data temp tersimpan (jika sebelumnya pakai temp)
         if (loadTempState()) {
-            emailInput.value = currentEmail;
-            renderInbox();
-            setStatus('info', 'Email temp ditemukan', `Aktif: ${currentEmail}`);
-        } else {
-            setStatus('info', 'Masukkan email atau buat temp mail.', '');
+            // Jika ada, aktifkan mode temp
+            optTemp.click();
         }
     })();
 </script>
